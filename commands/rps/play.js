@@ -82,7 +82,7 @@ module.exports = {
                 row.components = [acceptBtn, declineBtn];
                 sentMsg.edit({ content: 'Challenge declined.', embeds: [], components: [row], ephemeral: true });
                 interaction.followUp({ content: 'Challenge declined.', ephemeral: true });
-                deleteQueue(queue);
+                deleteQueue('challenge', queue.lobby.id, false);
             });
     }
 };
