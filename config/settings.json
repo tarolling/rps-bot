@@ -4,5 +4,6 @@
     "adjustFactor": 10,
     "defaultElo": 1000,
     "defaultRank": "Novice",
-    "specialRank": "Expert"
+    "specialRank": "Expert",
+    "defaultTimeout": 600000
 }

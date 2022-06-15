@@ -8,6 +8,7 @@
     "parserOptions": {
         "ecmaVersion": "latest"
     },
+    "ignorePatterns": ["process.env.DB_URI"],
     "rules": {
         "no-unused-vars": "warn"
     }
