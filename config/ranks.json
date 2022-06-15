@@ -1,16 +1,32 @@
 {
-    "novice": {
-        "queue": [],
+    "recruit": {
+        "color": 9125135,
+        "elo": {
+            "placement": 400,
+            "demo_placement": 500,
+            "promotion": 600,
+            "demotion": null
+        }
+    },
+    "apprentice": {
+        "color": 11382189,
+        "elo": {
+            "placement": 700,
+            "demo_placement": 800,
+            "promotion": 900,
+            "demotion": 500
+        }
+    },
+    "veteran": {
         "color": 4215,
         "elo": {
             "placement": 1000,
             "demo_placement": 1100,
             "promotion": 1200,
-            "demotion": null
+            "demotion": 800
         }
     },
     "expert": {
-        "queue": [],
         "color": 9568256,
         "elo": {
             "placement": 1300,
@@ -20,7 +36,6 @@
         }
     },
     "master": {
-        "queue": [],
         "color": 2138112,
         "elo": {
             "placement": 1600,
@@ -30,7 +45,6 @@
         }
     },
     "grandmaster": {
-        "queue": [],
         "color": 14856,
         "elo": {
             "placement": 1900,
@@ -40,7 +54,6 @@
         }
     },
     "ultimate": {
-        "queue": [],
         "color": 4915270,
         "elo": {
             "placement": 2200,
@@ -50,7 +63,6 @@
         }
     },
     "infinity": {
-        "queue": [],
         "color": 16777215,
         "elo": {
             "placement": 2500,
