@@ -3,7 +3,5 @@
     "K": 60,
     "adjustFactor": 10,
     "defaultElo": 1000,
-    "defaultRank": "Novice",
-    "specialRank": "Expert",
-    "defaultTimeout": 600000
+    "defaultRank": "Veteran"
 }
