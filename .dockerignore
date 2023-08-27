@@ -1,0 +1,28 @@
+# Common
+README.md
+CHANGELOG.md
+docker-compose.yml
+.dockerignore
+Dockerfile
+
+# git
+.git
+.gitattributes
+.gitignore
+
+# Anything else
+doxygen-awesome-css/
+docpages/
+testdata/
+win32/
+.github/
+.circleci/
+test/
+build/
+docs/
+.vscode/
+.vs/
+.idea/
+config.json
+.env
+.misspell-fixer.ignore
