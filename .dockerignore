@@ -11,12 +11,10 @@ Dockerfile
 .gitignore
 
 # Anything else
-doxygen-awesome-css/
 docpages/
 testdata/
 win32/
 .github/
-.circleci/
 test/
 build/
 docs/
