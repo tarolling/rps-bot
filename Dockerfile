@@ -17,7 +17,6 @@ WORKDIR /usr/src/rps-bot/build
 
 RUN cmake -S ../ -B .
 RUN make -j "$(nproc)"
-RUN make
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
 CMD [ "./RPS-BOT" ]

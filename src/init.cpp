@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv) {
   char *bot_token = std::getenv("BOT_TOKEN");
-  if (bot_token == NULL || bot_token == "") {
+  if (bot_token == NULL) {
     std::cerr << "Bot token not found."
               << "\n";
     return EXIT_FAILURE;
