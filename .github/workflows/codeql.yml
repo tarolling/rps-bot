@@ -74,8 +74,8 @@ jobs:
 
     - run: |
         echo "Run, Build Application using script"
-        ./scripts/build_no_docker.sh
-        
+        RUNNER_ALLOW_RUNASROOT="1" ./scripts/build_no_docker.sh
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:
