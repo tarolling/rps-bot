@@ -1,5 +1,7 @@
 # rps-bot-cpp
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c761ef55c7148329f4c2d4ed84cc198)](https://app.codacy.com/gh/tarolling/rps-bot-cpp?utm_source=github.com&utm_medium=referral&utm_content=tarolling/rps-bot-cpp&utm_campaign=Badge_Grade)
+
 C++ version of Ranked RPS bot.
 
 ## Invite To Your Server
