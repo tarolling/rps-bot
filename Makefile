@@ -3,7 +3,7 @@ docker: docker_clean docker_build docker_run
 
 .PHONY: docker_build
 docker_build:
-	docker build --pull -f "Dockerfile" -t tarolling/rpsbot "." --no-cache
+	docker build --pull -f Dockerfile -t tarolling/rpsbot "."
 .PHONY: docker_clean
 docker_clean:
 	docker container prune

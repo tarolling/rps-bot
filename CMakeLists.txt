@@ -6,24 +6,11 @@ project(RPS-BOT
     LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE "Debug")
 
 include_directories(BEFORE include/)
-
-find_package(dpp)
-
-if(NOT dpp_FOUND)
-    message(STATUS "Fetching D++ from GitHub...")
-
-    include(FetchContent)
-    FetchContent_Declare(dpp
-        GIT_REPOSITORY https://github.com/brainboxdotcc/DPP
-        GIT_TAG v10.0.24
-    )
-    FetchContent_MakeAvailable(dpp)
-endif()
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
