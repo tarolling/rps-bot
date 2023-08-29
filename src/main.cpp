@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
               << "\n";
     return EXIT_FAILURE;
   }
-  dpp::cluster bot(bot_token);
+  dpp::cluster bot(bot_token, dpp::i_default_intents);
   bot.on_log(dpp::utility::cout_logger());
 
   bot.on_slashcommand([](const dpp::slashcommand_t &event) {
@@ -27,3 +27,5 @@ int main(int argc, char **argv) {
 
   bot.start(dpp::st_wait);
 }
+
+void setup() {}
