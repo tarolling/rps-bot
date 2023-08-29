@@ -6,10 +6,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y libssl-dev zlib
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget -O dpp.deb https://dl.dpp.dev/
-RUN dpkg -i dpp.deb
-RUN rm dpp.deb
-
 WORKDIR /usr/src/rps-bot
 
 COPY . .
