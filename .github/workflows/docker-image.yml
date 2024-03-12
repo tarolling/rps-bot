@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Initiate Git submodules
+      run: git submodule update --init --recursive
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag rpsbot:$(date +%s)
