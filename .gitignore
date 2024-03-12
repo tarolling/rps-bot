@@ -99,3 +99,6 @@ Sessionx.vim
 tags
 # Persistent undo
 [._]*.un~
+
+# Clang-generated
+.cache/

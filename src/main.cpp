@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     command_handler.register_commands();
   });
 
-  bot.start(dpp::st_wait);
+  bot.start(dpp::st_wait != 0U);
 
   return EXIT_SUCCESS;
 }
