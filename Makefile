@@ -7,7 +7,6 @@ docker_build:
 .PHONY: docker_clean
 docker_clean:
 	docker container prune
-	docker image rm tarolling/rpsbot
 .PHONY: docker_run
 docker_run:
 	docker run -it --env-file .env tarolling/rpsbot
