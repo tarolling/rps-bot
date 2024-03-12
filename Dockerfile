@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y build-essential
 
 WORKDIR /usr/src/rps-bot
 
-COPY . .
+RUN git clone https://github.com/tarolling/rps-bot-cpp.git
 
 WORKDIR /usr/src/rps-bot/build
 
