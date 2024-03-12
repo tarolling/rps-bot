@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
 )
 
-# add_subdirectory(
-# DPP
-# )
+target_include_directories(
+    ${PROJECT_NAME} PRIVATE
+    DPP
+)
