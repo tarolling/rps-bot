@@ -2,13 +2,13 @@
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive 
-RUN apt-get update && apt-get install --no-install-recommends -y build-essential libssl-dev zlib1g-dev libsodium-dev libopus-dev cmake pkg-config git \
+RUN apt-get update && apt-get install --no-install-recommends -y libssl-dev zlib1g-dev libsodium-dev libopus-dev cmake pkg-config g++ gcc git make \
     && apt-get clean \  
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/rps-bot
 
-RUN git clone https://github.com/tarolling/rps-bot-cpp.git
+COPY . .
 
 WORKDIR /usr/src/rps-bot/build
 
