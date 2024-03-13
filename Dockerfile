@@ -10,6 +10,8 @@ WORKDIR /usr/src/rps-bot
 
 COPY . .
 
+RUN dpkg -i libs/dpp.deb
+
 WORKDIR /usr/src/rps-bot/build
 
 RUN cmake -S ../ -B .
