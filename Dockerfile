@@ -8,7 +8,7 @@ COPY . .
 WORKDIR /usr/src/rps-bot/build
 
 RUN cmake -S ../ -B .
-RUN make -j "$(nproc)"
+RUN make -j$(nproc)
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
 CMD [ "./src/rps_bot" ]
