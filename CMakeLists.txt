@@ -8,12 +8,11 @@ project(rps_bot
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
 
-include_directories(include/ DPP/include)
+include_directories(include/)
 
 # Set up DPP
-add_subdirectory(DPP EXCLUDE_FROM_ALL)
 
 # Set up project
 add_subdirectory(src)
