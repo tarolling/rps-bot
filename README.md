@@ -12,11 +12,6 @@ C++ version of Ranked RPS bot.
 
 ## Development
 
-### Required Packages
-
-- [dpp](https://dpp.dev): D++ is a lightweight and simple library for Discord,
-written in modern C++.
-
 ### Additional Instructions
 
 Create a `.env` file, and enter the following information:
