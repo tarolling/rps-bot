@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Install packages
 sudo apt-get update -y && \
 sudo apt-get install --no-install-recommends -y libssl-dev zlib1g-dev libsodium-dev libopus-dev cmake pkg-config g++ gcc git make && \

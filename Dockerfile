@@ -8,5 +8,5 @@ COPY . .
 # RUN cmake -S ../ -B .
 # RUN make -j "$(nproc)"
 
-ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/bin/sh" ]
 # CMD [ "./src/rps_bot" ]
