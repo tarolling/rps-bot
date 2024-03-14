@@ -15,7 +15,6 @@ docpages/
 testdata/
 win32/
 .github/
-test/
 build/
 docs/
 .vscode/
@@ -24,3 +23,5 @@ docs/
 config.json
 .env
 .misspell-fixer.ignore
+*.md
+Makefile
