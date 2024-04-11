@@ -74,7 +74,7 @@ jobs:
 
     - run: |
         echo "Run, Build Application using script"
-        ./scripts/build_no_docker.sh
+        ./scripts/build_fresh_no_docker.sh
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
