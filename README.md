@@ -4,7 +4,9 @@
 
 # rps-bot-cpp
 
-C++ version of Ranked RPS bot.
+C++ version of Ranked RPS bot. Architecture directly inspired by:
+
+- TriviaBot: <https://github.com/brainboxdotcc/triviabot>
 
 ## Invite To Your Server
 
@@ -12,10 +14,15 @@ C++ version of Ranked RPS bot.
 
 ## Development
 
+### Dependencies
+
+| Name | Version |
+| ---- | ------- |
+| [CMake](https://cmake.org/) | 3.16.3+ |
+| [D++](https://github.com/brainboxdotcc/DPP) | 10.0.29 |
+| [fmtlib](https://github.com/fmtlib/fmt) | 8.1.1 |
+| [spdlog](https://github.com/gabime/spdlog) | latest |
+
 ### Additional Instructions
 
-Create a `.env` file, and enter the following information:
-
-```env
-BOT_TOKEN=<your-token-here>
-```
+Create a `config.json` file, and fill in the fields according to [the example file](example-config.json).

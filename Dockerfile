@@ -1,12 +1,10 @@
 # syntax=docker/dockerfile:1
-FROM brainboxdotcc/dpp@sha256:aa3377f7d7ec6d834de2aa7beda41a13efb2cc29dbc4fca78d54658b4b63fc8a
+FROM brainboxdotcc/dpp@sha256:7768537ec0d42eb5ec198bb6762555703dd2288f446ffa5876e190f9ffbf7f7f
+
+RUN apt-get update && apt-get install --no-install-recommends -y libspdlog-dev libfmt-dev && apt-get clean
 
 WORKDIR /usr/src/rps-bot
 
 COPY . .
 
-# RUN cmake -S ../ -B .
-# RUN make -j "$(nproc)"
-
 ENTRYPOINT [ "/bin/sh" ]
-# CMD [ "./src/rps_bot" ]

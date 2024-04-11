@@ -11,6 +11,7 @@ Dockerfile
 .gitignore
 
 # Anything else
+.cache/
 docpages/
 testdata/
 win32/
@@ -20,7 +21,7 @@ docs/
 .vscode/
 .vs/
 .idea/
-config.json
+example-config.json
 .env
 .misspell-fixer.ignore
 *.md
