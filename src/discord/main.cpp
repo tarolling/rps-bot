@@ -242,9 +242,9 @@ int main(int argc, char **argv) {
   struct option longopts[] = {{"dev", no_argument, &dev, 1},
                               {"test", no_argument, &test, 1},
                               {"members", no_argument, &members, 1},
-                              {"clusterid", required_argument, NULL, 'c'},
-                              {"maxclusters", required_argument, NULL, 'm'},
-                              {0, 0, 0, 0}};
+                              {"clusterid", required_argument, nullptr, 'c'},
+                              {"maxclusters", required_argument, nullptr, 'm'},
+                              {nullptr, 0, nullptr, 0}};
 
   /* These are our default intents for the bot, basically just receive messages,
    * see reactions to the messages and see who's in our guilds */

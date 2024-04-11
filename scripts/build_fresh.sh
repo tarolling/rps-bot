@@ -2,10 +2,9 @@
 
 # Install packages
 sudo apt-get update -y && \
-sudo apt-get install --no-install-recommends -y libssl-dev zlib1g-dev libsodium-dev libopus-dev libspdlog-dev=1:1.5.0-1 libfmt-dev=6.1.2+ds-2 cmake pkg-config g++ gcc git make && \
+sudo apt-get install --no-install-recommends -y sudo gcc g++ build-essential git cmake libssl-dev zlib1g-dev libsodium-dev libopus-dev libspdlog-dev=1:1.5.0-1 libfmt-dev=6.1.2+ds-2 lohmann-json3-dev pkg-config make && \
 sudo apt-get clean
 # Symlink weirdness
-ln -s libcrypto.so.3 libcrypto.so
 ln -s libssl.so.3 libssl.so
 sudo ldconfig
 # Install DPP dependency
