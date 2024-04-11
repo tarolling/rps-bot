@@ -37,6 +37,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
+
 # Makefile
 cmake_install.cmake
 install_manifest.txt
@@ -45,10 +46,11 @@ CTestTestfile.cmake
 _deps
 
 # Build Files
-build
+build/
+logs/
 
-# Environment File
-.env
+# Secrets
+config.json
 
 # Visual Studio Code
 .vscode/*

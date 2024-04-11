@@ -1,0 +1,23 @@
+{
+    "devtoken": "<dev bot token>",
+    "livetoken": "<live bot token>",
+    "shardcount": 2,
+    "dbhost": "<mysql host>",
+    "dbuser": "<mysql user>",
+    "dbpass": "<mysql pass>",
+    "dbname": "<mysql db>",
+    "dbport": "3306",
+    "neutrino_user": "<neutrino api user (paid)>",
+    "neutrino_key": "<neutrino api key (paid)>",
+    "error_recipient": "<email address of user to receive runtime errors>",
+    "owner": "<discord snowflake id of bot owner>",
+    "modules": [
+        "module_diagnostics.so",
+        "module_bandwidth.so",
+        "module_presence.so",
+        "module_trivia.so"
+    ],
+    "shitlist": [
+        12345678901234567
+    ]
+}
