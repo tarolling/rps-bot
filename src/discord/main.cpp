@@ -17,13 +17,14 @@
  ************************************************************************************/
 
 #define SPDLOG_FMT_EXTERNAL
-#include <cstdlib>
 #include <dpp/dpp.h>
 #include <dpp/nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <fstream>
 #include <getopt.h>
 #include <iostream>
+#include <mutex>
+#include <queue>
 #include <spdlog/async.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -32,8 +33,12 @@
 #include <sporks/includes.h>
 #include <sporks/modules.h>
 #include <sporks/stringops.h>
+#include <sstream>
+#include <stdlib.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
+
+using json = nlohmann::json;
 
 using json = nlohmann::json;
 
@@ -242,9 +247,9 @@ int main(int argc, char **argv) {
   struct option longopts[] = {{"dev", no_argument, &dev, 1},
                               {"test", no_argument, &test, 1},
                               {"members", no_argument, &members, 1},
-                              {"clusterid", required_argument, NULL, 'c'},
-                              {"maxclusters", required_argument, NULL, 'm'},
-                              {0, 0, 0, 0}};
+                              {"clusterid", required_argument, nullptr, 'c'},
+                              {"maxclusters", required_argument, nullptr, 'm'},
+                              {nullptr, 0, nullptr, 0}};
 
   /* These are our default intents for the bot, basically just receive messages,
    * see reactions to the messages and see who's in our guilds */

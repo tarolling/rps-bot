@@ -17,7 +17,10 @@
  ************************************************************************************/
 
 #include <cstdint>
+#include <sporks/bot.h>
 #include <sporks/modules.h>
+#include <sporks/stringops.h>
+#include <string>
 
 class PresenceModule : public Module {
   int64_t halfminutes{};
