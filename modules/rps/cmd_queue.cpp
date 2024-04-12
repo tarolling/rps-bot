@@ -27,6 +27,7 @@
 #include <sporks/statusfield.h>
 #include <sporks/stringops.h>
 #include <string>
+#include <utility>
 
 using json = nlohmann::json;
 
@@ -34,7 +35,7 @@ command_queue_t::command_queue_t(class RPSModule *_creator,
                                  const std::string &_base_command, bool adm,
                                  const std::string &descr,
                                  std::vector<dpp::command_option> options)
-    : command_t(_creator, _base_command, adm, descr, options) {}
+    : command_t(_creator, _base_command, adm, descr, std::move(options)) {}
 
 void command_queue_t::call(const in_cmd &cmd, std::stringstream &tokens,
                            guild_settings_t &settings,
