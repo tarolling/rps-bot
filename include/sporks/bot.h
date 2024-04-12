@@ -1,7 +1,5 @@
 /************************************************************************************
  *
- * TriviaBot, the Discord Quiz Bot with over 80,000 questions!
- *
  * Copyright 2019 Craig Edwards <support@sporks.gg>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

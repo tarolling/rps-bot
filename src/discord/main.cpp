@@ -17,13 +17,14 @@
  ************************************************************************************/
 
 #define SPDLOG_FMT_EXTERNAL
-#include <cstdlib>
 #include <dpp/dpp.h>
 #include <dpp/nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <fstream>
 #include <getopt.h>
 #include <iostream>
+#include <mutex>
+#include <queue>
 #include <spdlog/async.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -32,8 +33,12 @@
 #include <sporks/includes.h>
 #include <sporks/modules.h>
 #include <sporks/stringops.h>
+#include <sstream>
+#include <stdlib.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
+
+using json = nlohmann::json;
 
 using json = nlohmann::json;
 

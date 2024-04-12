@@ -64,7 +64,7 @@ public:
 
 class command_t {
 protected:
-  class TriviaModule *creator;
+  class RPSModule *creator;
   std::string base_command;
   std::string _(const std::string &str, const guild_settings_t &settings);
 
@@ -75,7 +75,7 @@ public:
   std::string description;
   std::vector<dpp::command_option> opts;
   command_t(
-      class TriviaModule *_creator, const std::string &_base_command, bool adm,
+      class RPSModule *_creator, const std::string &_base_command, bool adm,
       const std::string &descr, std::vector<dpp::command_option> options,
       bool is_ephemeral = false,
       dpp::slashcommand_contextmenu_type command_type = dpp::ctxm_chat_input);
@@ -93,7 +93,7 @@ public:
   command_t &operator=(command_t &&other) noexcept;       // move assignment
 };
 
-DECLARE_COMMAND_CLASS(command_leave_t, command_t);
 DECLARE_COMMAND_CLASS(command_queue_t, command_t);
+DECLARE_COMMAND_CLASS(command_leave_t, command_t);
 
 using command_list_t = std::multimap<std::string, command_t *>;

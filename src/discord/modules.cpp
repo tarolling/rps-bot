@@ -24,8 +24,10 @@
 #define _GNU_SOURCE
 #endif
 #include <dlfcn.h>
+#include <limits.h>
 #include <link.h>
 #include <sporks/stringops.h>
+#include <sstream>
 #include <unistd.h>
 
 using json = nlohmann::json;
@@ -89,7 +91,7 @@ void ModuleLoader::Attach(const std::vector<Implementation> &i, Module *mod) {
         EventHandlers[*n].end()) {
       EventHandlers[*n].push_back(mod);
       bot->core->log(dpp::ll_debug,
-                     fmt::format(R"(Module "{}" attached event "{}")",
+                     fmt::format("Module \"{}\" attached event \"{}\"",
                                  mod->GetDescription(), StringNames[*n]));
     } else {
       bot->core->log(
@@ -99,6 +101,7 @@ void ModuleLoader::Attach(const std::vector<Implementation> &i, Module *mod) {
     }
   }
 }
+
 /**
  * Detach an event from a module, oppsite of Attach() above.
  */
@@ -125,7 +128,7 @@ const ModMap &ModuleLoader::GetModuleList() const { return ModuleList; }
  * Sets the error message returned by GetLastError().
  */
 bool ModuleLoader::Load(const std::string &filename) {
-  ModuleNative m{};
+  ModuleNative m;
 
   m.err = nullptr;
   m.dlopen_handle = nullptr;
@@ -143,52 +146,55 @@ bool ModuleLoader::Load(const std::string &filename) {
         std::string(getcwd(buffer, PATH_MAX)) + "/build/" + filename;
 
     m.dlopen_handle = dlopen(full_module_spec.c_str(), RTLD_NOW | RTLD_LOCAL);
-    if (m.dlopen_handle == nullptr) {
+    if (!m.dlopen_handle) {
       lasterror = dlerror();
       bot->core->log(dpp::ll_error,
                      fmt::format("Can't load module: {}", lasterror));
       return false;
+    } else {
+      if (!GetSymbol(m, "init_module")) {
+        bot->core->log(dpp::ll_error,
+                       fmt::format("Can't load module: {}",
+                                   m.err ? m.err : "General error"));
+        lasterror = (m.err ? m.err : "General error");
+        dlclose(m.dlopen_handle);
+        return false;
+      } else {
+        bot->core->log(
+            dpp::ll_debug,
+            fmt::format("Module shared object {} loaded, symbol found",
+                        filename));
+        m.module_object = m.init(bot, this);
+        /* In the event of a missing module_init symbol, dlsym() returns a valid
+         * pointer to a function that returns -1 as its pointer. Why? I don't
+         * know.
+         * FIXME find out why.
+         */
+        if (!m.module_object ||
+            (uint64_t)m.module_object == 0xffffffffffffffff) {
+          bot->core->log(dpp::ll_error,
+                         fmt::format("Can't load module: Invalid module "
+                                     "pointer returned. No symbol?"));
+          m.err = "Not a module (symbol init_module not found)";
+          lasterror = m.err;
+          dlclose(m.dlopen_handle);
+          return false;
+        } else {
+          bot->core->log(dpp::ll_debug,
+                         fmt::format("Module {} initialized", filename));
+          Modules[filename] = m;
+          ModuleList[filename] = m.module_object;
+          lasterror = "";
+          return true;
+        }
+      }
     }
-    if (!GetSymbol(m, "init_module")) {
-      bot->core->log(dpp::ll_error,
-                     fmt::format("Can't load module: {}",
-                                 m.err != nullptr ? m.err : "General error"));
-      lasterror = (m.err != nullptr ? m.err : "General error");
-      dlclose(m.dlopen_handle);
-      return false;
-    }
-
-    bot->core->log(
-        dpp::ll_debug,
-        fmt::format("Module shared object {} loaded, symbol found", filename));
-    m.module_object = m.init(bot, this);
-    /* In the event of a missing module_init symbol, dlsym() returns a valid
-     * pointer to a function that returns -1 as its pointer. Why? I don't
-     * know.
-     * FIXME find out why.
-     */
-    if ((m.module_object == nullptr) ||
-        (uint64_t)m.module_object == 0xffffffffffffffff) {
-      bot->core->log(dpp::ll_error,
-                     fmt::format("Can't load module: Invalid module "
-                                 "pointer returned. No symbol?"));
-      m.err = "Not a module (symbol init_module not found)";
-      lasterror = m.err;
-      dlclose(m.dlopen_handle);
-      return false;
-    }
-
-    bot->core->log(dpp::ll_debug,
-                   fmt::format("Module {} initialised", filename));
-    Modules[filename] = m;
-    ModuleList[filename] = m.module_object;
-    lasterror = "";
-    return true;
+  } else {
+    bot->core->log(dpp::ll_error,
+                   fmt::format("Module {} already loaded!", filename));
+    lasterror = "Module already loaded!";
+    return false;
   }
-  bot->core->log(dpp::ll_error,
-                 fmt::format("Module {} already loaded!", filename));
-  lasterror = "Module already loaded!";
-  return false;
 }
 
 /**
@@ -236,13 +242,13 @@ bool ModuleLoader::Unload(const std::string &filename) {
                    fmt::format("Removed {} from module list", filename));
   }
 
-  if (mod.module_object != nullptr) {
+  if (mod.module_object) {
     bot->core->log(dpp::ll_debug, fmt::format("Module {} dtor", filename));
     delete mod.module_object;
   }
 
   /* Remove module from memory */
-  if (mod.dlopen_handle != nullptr) {
+  if (mod.dlopen_handle) {
     bot->core->log(dpp::ll_debug, fmt::format("Module {} dlclose()", filename));
     dlclose(mod.dlopen_handle);
   }
@@ -273,8 +279,8 @@ void ModuleLoader::LoadAll() {
   std::ifstream configfile("config.json");
   configfile >> document;
   json modlist = document["modules"];
-  for (auto &entry : modlist) {
-    std::string modulename = entry.get<std::string>();
+  for (auto entry = modlist.begin(); entry != modlist.end(); ++entry) {
+    std::string modulename = entry->get<std::string>();
     this->Load(modulename);
   }
 }
@@ -285,7 +291,7 @@ void ModuleLoader::LoadAll() {
  */
 bool ModuleLoader::GetSymbol(ModuleNative &native, const char *sym_name) {
   /* Find exported symbol in shared object */
-  if (native.dlopen_handle != nullptr) {
+  if (native.dlopen_handle) {
     dlerror(); // clear value
     native.init = (initfunctype *)dlsym(native.dlopen_handle, sym_name);
     native.err = dlerror();
@@ -293,7 +299,7 @@ bool ModuleLoader::GetSymbol(ModuleNative &native, const char *sym_name) {
     // dlsym=0x%016x sym_name=%s\n", native.dlopen_handle, native.init,
     // native.err ? native.err : "<NULL>", dlsym(native.dlopen_handle,
     // sym_name), sym_name);
-    if ((native.init == nullptr) || (native.err != nullptr)) {
+    if (!native.init || native.err) {
       return false;
     }
   } else {
@@ -429,3 +435,37 @@ bool Module::OnWebhooksUpdate(const dpp::webhooks_update_t &obj) {
 }
 
 bool Module::OnAllShardsReady() { return true; }
+
+/**
+ * Output a simple embed to a channel consisting just of a message.
+ */
+void Module::EmbedSimple(const std::string &message, int64_t channelID) {
+  std::stringstream s;
+  json embed_json;
+
+  s << "{\"color\":16767488, \"description\": \"" << message << "\"}";
+
+  try {
+    embed_json = json::parse(s.str());
+  } catch (const std::exception &e) {
+    bot->core->log(
+        dpp::ll_error,
+        fmt::format("Invalid json for channel {} created by EmbedSimple: ",
+                    channelID, s.str()));
+  }
+  dpp::channel *channel = dpp::find_channel(channelID);
+  if (channel) {
+    if (!bot->IsTestMode() ||
+        from_string<uint64_t>(Bot::GetConfig("test_server"), std::dec) ==
+            channel->guild_id) {
+      dpp::message m;
+      m.channel_id = channel->id;
+      m.embeds.push_back(dpp::embed(&embed_json));
+      bot->core->message_create(m);
+    }
+  } else {
+    bot->core->log(
+        dpp::ll_error,
+        fmt::format("Invalid channel {} passed to EmbedSimple", channelID));
+  }
+}
