@@ -28,7 +28,7 @@ public:
   time_t time;
   uint64_t guild_id;
   std::string prefix;
-  uint32_t embedcolour;
+  uint32_t embedcolor;
   std::vector<uint64_t> moderator_roles;
   bool premium;
   bool only_mods_stop;
@@ -45,7 +45,7 @@ public:
 
   guild_settings_t(time_t now, uint64_t _guild_id, const std::string &_prefix,
                    const std::vector<uint64_t> &_moderator_roles,
-                   uint32_t _embedcolour, bool _premium, bool _only_mods_stop,
+                   uint32_t _embedcolor, bool _premium, bool _only_mods_stop,
                    bool _only_mods_start, bool _role_reward_enabled,
                    uint64_t _role_reward_id, const std::string &_custom_url,
                    const std::string &_language, uint32_t question_interval,

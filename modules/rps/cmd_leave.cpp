@@ -38,19 +38,8 @@ void command_leave_t::call(const in_cmd &cmd, std::stringstream &tokens,
                            guild_settings_t &settings,
                            const std::string &username, bool is_moderator,
                            dpp::channel *c, dpp::user *user) {
-  //   std::string teamname = get_current_team(cmd.author_id);
-  //   if (teamname.empty()) {
-  //     creator->SimpleEmbed(
-  //         cmd.interaction_token, cmd.command_id, settings, ":warning:",
-  //         fmt::format(_("YOULONER", settings), username, settings.prefix),
-  //         cmd.channel_id);
-  //   } else {
-  //     leave_team(cmd.author_id);
-  //     creator->SimpleEmbed(
-  //         cmd.interaction_token, cmd.command_id, settings,
-  //         ":busts_in_silhouette:",
-  //         fmt::format(_("LEFTTEAM", settings), username, teamname),
-  //         cmd.channel_id, _("COMEBACK", settings));
-  //   }
-  //   creator->CacheUser(cmd.author_id, cmd.user, cmd.member, cmd.channel_id);
+  creator->SimpleEmbed(cmd.interaction_token, cmd.command_id, settings, "",
+                       fmt::format("**{}** has left.", username),
+                       cmd.channel_id, "0 players are in the queue", "",
+                       cmd.user.get_avatar_url(1024));
 }

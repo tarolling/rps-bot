@@ -22,14 +22,14 @@
 
 guild_settings_t::guild_settings_t(
     time_t now, uint64_t _guild_id, const std::string &_prefix,
-    const std::vector<uint64_t> &_moderator_roles, uint32_t _embedcolour,
+    const std::vector<uint64_t> &_moderator_roles, uint32_t _embedcolor,
     bool _premium, bool _only_mods_stop, bool _only_mods_start,
     bool _role_reward_enabled, uint64_t _role_reward_id,
     const std::string &_custom_url, const std::string &_language,
     uint32_t _question_interval, uint32_t max_normal, uint32_t max_quickfire,
     uint32_t max_hardcore, bool disableinsane)
     : time(now), guild_id(_guild_id), prefix(_prefix),
-      moderator_roles(_moderator_roles), embedcolour(_embedcolour),
+      moderator_roles(_moderator_roles), embedcolor(_embedcolor),
       premium(_premium), only_mods_stop(_only_mods_stop),
       only_mods_start(_only_mods_start),
       role_reward_enabled(_role_reward_enabled),

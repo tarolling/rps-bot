@@ -2,10 +2,8 @@
 
 #include "commands.h"
 #include "settings.h"
-#include <atomic>
 #include <deque>
 #include <dpp/dpp.h>
-#include <map>
 #include <mutex>
 #include <shared_mutex>
 #include <sporks/modules.h>
@@ -19,6 +17,12 @@ constexpr int32_t game_reap_secs = 20000;
 // Number of seconds between allowed API-bound calls, per channel
 constexpr int8_t per_channel_rate_limit = 4;
 
+struct field_t {
+  std::string name;
+  std::string value;
+  bool _inline;
+};
+
 class RPSModule : public Module {
   std::unordered_map<dpp::snowflake, time_t> limits;
   std::unordered_map<dpp::snowflake, time_t> last_rl_warning;
@@ -29,6 +33,7 @@ class RPSModule : public Module {
   std::deque<in_cmd> commandqueue;
   std::deque<in_cmd> to_process;
   std::thread *command_processor;
+  std::shared_mutex lang_mutex;
   command_list_t commands;
   std::shared_mutex settingcache_mutex;
   std::unordered_map<dpp::snowflake, guild_settings_t> settings_cache;
@@ -43,6 +48,7 @@ class RPSModule : public Module {
 
 public:
   time_t startup;
+  json *lang;
   std::mutex states_mutex;
   // std::map<dpp::snowflake, state_t> states;
   RPSModule(Bot *instigator, ModuleLoader *ml);
@@ -59,10 +65,11 @@ public:
   void handle_command(const in_cmd &cmd,
                       const dpp::interaction_create_t &event);
   void ProcessCommands();
-  virtual bool OnPresenceUpdate();
+  bool OnPresenceUpdate();
+  std::string _(const std::string &k);
   bool OnAllShardsReady();
-  virtual bool OnChannelDelete(const dpp::channel_delete_t &cd);
-  virtual bool OnGuildDelete(const dpp::guild_delete_t &gd);
+  bool OnChannelDelete(const dpp::channel_delete_t &cd);
+  bool OnGuildDelete(const dpp::guild_delete_t &gd);
 
   /* Returns a local count */
   uint64_t GetActiveLocalGames();
@@ -73,7 +80,43 @@ public:
   uint64_t GetMemberTotal();
   uint64_t GetChannelTotal();
 
-  virtual std::string GetDescription();
+  std::string escape_json(const std::string &s);
+
+  void ProcessEmbed(const class guild_settings_t &settings,
+                    const std::string &embed_json, dpp::snowflake channelID);
+  void SimpleEmbed(const class guild_settings_t &settings,
+                   const std::string &emoji, const std::string &text,
+                   dpp::snowflake channelID, const std::string &title = "",
+                   const std::string &image = "",
+                   const std::string &thumbnail = "");
+  void EmbedWithFields(const class guild_settings_t &settings,
+                       const std::string &title, std::vector<field_t> fields,
+                       dpp::snowflake channelID, const std::string &url = "",
+                       const std::string &image = "",
+                       const std::string &thumbnail = "",
+                       const std::string &description = "");
+
+  void ProcessEmbed(const std::string &interaction_token,
+                    dpp::snowflake command_id,
+                    const class guild_settings_t &settings,
+                    const std::string &embed_json, dpp::snowflake channelID);
+  void SimpleEmbed(const std::string &interaction_token,
+                   dpp::snowflake command_id,
+                   const class guild_settings_t &settings,
+                   const std::string &emoji, const std::string &text,
+                   dpp::snowflake channelID, const std::string &title = "",
+                   const std::string &image = "",
+                   const std::string &thumbnail = "");
+  void EmbedWithFields(const std::string &interaction_token,
+                       dpp::snowflake command_id,
+                       const class guild_settings_t &settings,
+                       const std::string &title, std::vector<field_t> fields,
+                       dpp::snowflake channelID, const std::string &url = "",
+                       const std::string &image = "",
+                       const std::string &thumbnail = "",
+                       const std::string &description = "");
+
+  std::string GetDescription();
   int random(int min, int max);
   std::string dec_to_roman(uint64_t decimal, const guild_settings_t &settings);
   std::string tidy_num(std::string num);
@@ -95,9 +138,9 @@ public:
                   dpp::snowflake channel_id);
   void Tick();
   void DisposeThread(std::thread *t);
-  virtual bool OnMessage(const dpp::message_create_t &message,
-                         const std::string &clean_message, bool mentioned,
-                         const std::vector<std::string> &stringmentions);
+  bool OnMessage(const dpp::message_create_t &message,
+                 const std::string &clean_message, bool mentioned,
+                 const std::vector<std::string> &stringmentions);
   bool OnGuildCreate(const dpp::guild_create_t &guild);
   bool RealOnMessage(const dpp::message_create_t &message,
                      const std::string &clean_message, bool mentioned,

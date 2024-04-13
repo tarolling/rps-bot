@@ -45,6 +45,16 @@ RPSModule::RPSModule(Bot *instigator, ModuleLoader *ml)
   /* Create threads */
   presence_update = new std::thread(&RPSModule::UpdatePresenceLine, this);
 
+  {
+    std::unique_lock lang_lock(lang_mutex);
+    /* Read language strings */
+    std::ifstream langfile("lang.json");
+    lang = new json();
+    langfile >> *lang;
+    bot->core->log(dpp::ll_info,
+                   fmt::format("Language strings count: {}", lang->size()));
+  }
+
   /* Setup built in commands */
   SetupCommands();
 }
@@ -61,6 +71,9 @@ RPSModule::~RPSModule() {
   /* This explicitly calls the destructor on all states */
   std::lock_guard<std::mutex> state_lock(states_mutex);
   // states.clear();
+
+  /* Delete these misc pointers, mostly regexps */
+  delete lang;
 }
 
 bool RPSModule::OnPresenceUpdate() {
@@ -74,6 +87,16 @@ bool RPSModule::OnPresenceUpdate() {
                       (shard->get_uptime().days * 60 * 60 * 24);
   }
   return true;
+}
+
+std::string RPSModule::_(const std::string &k) {
+  /* Find language string 'k' in lang.json */
+  std::shared_lock lang_lock(lang_mutex);
+  auto o = lang->find(k);
+  if (o != lang->end()) {
+    return o->get<std::string>();
+  }
+  return k;
 }
 
 bool RPSModule::OnGuildCreate(const dpp::guild_create_t &guild) {

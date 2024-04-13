@@ -12,6 +12,8 @@ add_executable(discord_bot ${bot_src})
 aux_source_directory(src/domain server_src)
 add_executable(server ${server_src})
 
+string(ASCII 27 Esc)
+
 include_directories(include)
 
 set(CMAKE_CXX_STANDARD 17)
