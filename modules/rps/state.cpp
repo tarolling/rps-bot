@@ -21,32 +21,32 @@
 #include "state.h"
 #include "rps.h"
 #include "time.h"
-#include <cstdint>
+#include <algorithm>
 #include <dpp/dpp.h>
+#include <dpp/misc-enum.h>
+#include <dpp/snowflake.h>
 #include <fmt/format.h>
-#include <fstream>
+#include <optional>
 #include <sporks/modules.h>
 #include <sporks/statusfield.h>
 #include <sporks/stringops.h>
-#include <streambuf>
 #include <string>
 #include <unistd.h>
-
-std::unordered_map<uint64_t, bool> banlist;
 
 state_t::state_t()
     : next_tick(time(nullptr)), creator(nullptr), terminating(false){};
 
-state_t::state_t(RPSModule *_creator, uint32_t questions, uint32_t currstreak,
-                 uint64_t lastanswered, uint32_t question_index,
-                 uint32_t _interval, uint64_t _channel_id, bool _hintless,
-                 const std::vector<std::string> &_shuffle_list,
-                 uint64_t _guild_id)
-    :
-
-      next_tick(time(nullptr)), creator(_creator), terminating(false) {
+state_t::state_t(RPSModule *_creator)
+    : next_tick(time(nullptr)), creator(_creator), terminating(false) {
   creator->GetBot()->core->log(dpp::ll_debug,
                                fmt::format("state_t::state_t()"));
+}
+
+state_t::~state_t() {
+  terminating = true;
+  /* XXX: These are safety values, so that if we access a deleted state at any
+   * point, it crashes sooner and can be identified easily in the debugger */
+  creator = nullptr;
 }
 
 /* Games are a finite state machine, where the tick() function is called
@@ -55,75 +55,51 @@ state_t::state_t(RPSModule *_creator, uint32_t questions, uint32_t currstreak,
  * object is removed from the list of current games. Each cluster only stores a
  * game list for itself.
  */
-void state_t::tick() {
-  // guild_settings_t settings = creator->GetGuildSettings(guild_id);
-  // if (!is_valid()) {
-  // 	log_game_end(guild_id, channel_id);
-  // 	terminating = true;
-  // 	gamestate = TRIV_END;
-  // 	return;
-  // }
-  // try {
-  // 	if (question_cache.empty()) {
-  // 			build_question_cache(settings);
-  // 	}
-  // 	switch (gamestate) {
-  // 		case TRIV_ASK_QUESTION:
-  // 			if (!terminating) {
-  // 				if (is_insane_round(settings)) {
-  // 					do_insane_round(false, settings);
-  // 				} else {
-  // 					do_normal_round(false, settings);
-  // 				}
-  // 			}
-  // 		break;
-  // 		case TRIV_FIRST_HINT:
-  // 			if (!terminating) {
-  // 				do_first_hint(settings);
-  // 			}
-  // 		break;
-  // 		case TRIV_SECOND_HINT:
-  // 			if (!terminating) {
-  // 				do_second_hint(settings);
-  // 			}
-  // 		break;
-  // 		case TRIV_TIME_UP:
-  // 			if (!terminating) {
-  // 				do_time_up(settings);
-  // 			}
-  // 		break;
-  // 		case TRIV_ANSWER_CORRECT:
-  // 			if (!terminating) {
-  // 				do_answer_correct(settings);
-  // 			}
-  // 		break;
-  // 		case TRIV_END:
-  // 			do_end_game(settings);
-  // 		break;
-  // 		default:
-  // 			creator->GetBot()->core->log(dpp::ll_warning,
-  // fmt::format("Invalid state '{}', ending round.", gamestate));
-  // gamestate = TRIV_END; 			terminating = true;
-  // break;
-  // 	}
+void state_t::tick() {}
 
-  // 	if (gamestate == TRIV_ANSWER_CORRECT) {
-  // 		/* Correct answer shortcuts the timer */
-  // 		next_tick = time(NULL);
-  // 	} else {
-  // 		/* Set time for next tick */
-  // 		if (gamestate == TRIV_ASK_QUESTION && interval == TRIV_INTERVAL)
-  // { 			next_tick = time(NULL) + settings.question_interval;
-  // } else { 			next_tick = time(NULL) + interval;
-  // 		}
-  // 	}
-  // }
-  // catch (std::exception &e) {
-  // 	creator->GetBot()->core->log(dpp::ll_debug, fmt::format("state_t
-  // exception! - {}", e.what()));
-  // }
-  // catch (...) {
-  // 	creator->GetBot()->core->log(dpp::ll_debug, fmt::format("state_t
-  // exception! - non-object"));
-  // }
+std::optional<rps_game> state_t::find_player_game(dpp::user &user) {
+  if (games.empty()) {
+    creator->GetBot()->core->log(dpp::ll_debug, "Player not in any queues");
+    return std::nullopt;
+  }
+
+  creator->GetBot()->core->log(
+      dpp::ll_debug, fmt::format("FPG - Games Count: {}", games.size()));
+  for (const rps_game &temp_game : games) {
+    creator->GetBot()->core->log(
+        dpp::ll_debug,
+        fmt::format("FPG - Player Count: {}", temp_game.players.size()));
+    // for (const dpp::user &player : temp_game.players) {
+    //   creator->GetBot()->core->log(
+    //       dpp::ll_debug, fmt::format("FPG - Player ID: {}", player.id));
+    // }
+  }
+
+  auto it =
+      std::find_if(games.begin(), games.end(), [&user](const rps_game &game) {
+        return std::any_of(game.players.begin(), game.players.end(),
+                           [&user](const dpp::snowflake &player) {
+                             return player == user.id;
+                           });
+      });
+
+  /* If a game is found, return it */
+  if (it != games.end()) {
+    creator->GetBot()->core->log(dpp::ll_debug, "Player in a queue");
+    return *it;
+  }
+
+  creator->GetBot()->core->log(dpp::ll_debug, "Player not in any queues");
+  return std::nullopt;
+}
+
+std::optional<rps_game> state_t::find_open_game() {
+  auto it = std::find_if(games.begin(), games.end(), [=](const rps_game &game) {
+    return game.players.size() < 2;
+  });
+
+  if (it != games.end()) {
+    return *it;
+  }
+  return std::nullopt;
 }

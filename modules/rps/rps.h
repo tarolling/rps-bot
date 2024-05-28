@@ -2,6 +2,7 @@
 
 #include "commands.h"
 #include "settings.h"
+#include "state.h"
 #include <deque>
 #include <dpp/dpp.h>
 #include <mutex>
@@ -50,7 +51,7 @@ public:
   time_t startup;
   json *lang;
   std::mutex states_mutex;
-  // std::map<dpp::snowflake, state_t> states;
+  state_t state;
   RPSModule(Bot *instigator, ModuleLoader *ml);
   Bot *GetBot();
   virtual ~RPSModule();
@@ -65,11 +66,11 @@ public:
   void handle_command(const in_cmd &cmd,
                       const dpp::interaction_create_t &event);
   void ProcessCommands();
-  bool OnPresenceUpdate();
+  bool OnPresenceUpdate() override;
   std::string _(const std::string &k);
-  bool OnAllShardsReady();
-  bool OnChannelDelete(const dpp::channel_delete_t &cd);
-  bool OnGuildDelete(const dpp::guild_delete_t &gd);
+  bool OnAllShardsReady() override;
+  bool OnChannelDelete(const dpp::channel_delete_t &cd) override;
+  bool OnGuildDelete(const dpp::guild_delete_t &gd) override;
 
   /* Returns a local count */
   uint64_t GetActiveLocalGames();
@@ -80,7 +81,7 @@ public:
   uint64_t GetMemberTotal();
   uint64_t GetChannelTotal();
 
-  std::string escape_json(const std::string &s);
+  static std::string escape_json(const std::string &s);
 
   void ProcessEmbed(const class guild_settings_t &settings,
                     const std::string &embed_json, dpp::snowflake channelID);
@@ -116,23 +117,8 @@ public:
                        const std::string &thumbnail = "",
                        const std::string &description = "");
 
-  std::string GetDescription();
-  int random(int min, int max);
-  std::string dec_to_roman(uint64_t decimal, const guild_settings_t &settings);
-  std::string tidy_num(std::string num);
+  std::string GetDescription() override;
   void UpdatePresenceLine();
-  std::string conv_num(std::string datain, const guild_settings_t &settings);
-  std::string numbertoname(uint64_t number, const guild_settings_t &settings);
-  std::string GetNearestNumber(uint64_t number,
-                               const guild_settings_t &settings);
-  uint64_t GetNearestNumberVal(uint64_t number,
-                               const guild_settings_t &settings);
-  int min3(int x, int y, int z);
-  int levenstein(std::string str1, std::string str2);
-  bool is_number(const std::string &s);
-  std::string MakeFirstHint(const std::string &s,
-                            const guild_settings_t &settings,
-                            bool indollars = false);
   void show_stats(const std::string &interaction_token,
                   dpp::snowflake command_id, dpp::snowflake guild_id,
                   dpp::snowflake channel_id);
@@ -140,8 +126,8 @@ public:
   void DisposeThread(std::thread *t);
   bool OnMessage(const dpp::message_create_t &message,
                  const std::string &clean_message, bool mentioned,
-                 const std::vector<std::string> &stringmentions);
-  bool OnGuildCreate(const dpp::guild_create_t &guild);
+                 const std::vector<std::string> &stringmentions) override;
+  bool OnGuildCreate(const dpp::guild_create_t &guild) override;
   bool RealOnMessage(const dpp::message_create_t &message,
                      const std::string &clean_message, bool mentioned,
                      const std::vector<std::string> &stringmentions,

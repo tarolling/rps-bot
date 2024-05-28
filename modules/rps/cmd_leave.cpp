@@ -19,6 +19,7 @@
  ************************************************************************************/
 
 #include "commands.h"
+#include "embed.h"
 #include "rps.h"
 #include <dpp/dpp.h>
 #include <fmt/format.h>
@@ -38,8 +39,10 @@ void command_leave_t::call(const in_cmd &cmd, std::stringstream &tokens,
                            guild_settings_t &settings,
                            const std::string &username, bool is_moderator,
                            dpp::channel *c, dpp::user *user) {
+
+  /* TODO: Free up game */
   creator->SimpleEmbed(cmd.interaction_token, cmd.command_id, settings, "",
                        fmt::format("**{}** has left.", username),
                        cmd.channel_id, "0 players are in the queue", "",
-                       cmd.user.get_avatar_url(1024));
+                       cmd.user.get_avatar_url(avatar_size));
 }

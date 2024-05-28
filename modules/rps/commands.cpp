@@ -22,13 +22,13 @@
 #include "settings.h"
 #include <cstdint>
 #include <dpp/dpp.h>
+#include <dpp/misc-enum.h>
 #include <dpp/nlohmann/json.hpp>
+#include <dpp/snowflake.h>
 #include <fmt/format.h>
-#include <fstream>
 #include <sporks/modules.h>
 #include <sporks/statusfield.h>
 #include <sporks/stringops.h>
-#include <streambuf>
 #include <string>
 #include <utility>
 
@@ -39,7 +39,7 @@ in_cmd::in_cmd(const std::string &m, uint64_t author, uint64_t channel,
                bool dashboard, dpp::user u, dpp::guild_member gm)
     : msg(m), author_id(author), channel_id(channel), guild_id(guild),
       mentions_bot(mention), from_dashboard(dashboard), username(_user),
-      user(u), member(gm), interaction_token(""), command_id(0) {}
+      user(u), member(std::move(gm)), command_id(0) {}
 
 command_t::command_t(class RPSModule *_creator,
                      const std::string &_base_command, bool adm,
@@ -84,13 +84,14 @@ void RPSModule::SetupCommands() {
     for (auto &c : commands) {
       if (!c.second->description.empty()) {
         dpp::slashcommand sc;
-        sc.set_type(
-              c.second->type) // Must set type first to prevent lowercasing of
-                              // context menu items
+        sc.set_type(c.second->type) // Must set type first to prevent
+                                    // lowercasing of context menu items
             .set_name(c.first)
             .set_description(c.second->description)
-            .set_application_id(from_string<uint64_t>(
-                bot->GetConfig("application_id"), std::dec));
+            .set_application_id(from_string<dpp::snowflake>(
+                Bot::GetConfig("application_id"), std::dec));
+        bot->core->log(dpp::ll_debug,
+                       fmt::format("what is this -> {}", sc.application_id));
         for (auto &o : c.second->opts) {
           sc.add_option(o);
         }
@@ -117,7 +118,7 @@ void RPSModule::SetupCommands() {
                 std::back_inserter(slashcommands));
       bot->core->guild_bulk_command_create(
           slashcommands,
-          from_string<uint64_t>(bot->GetConfig("test_server"), std::dec),
+          from_string<uint64_t>(Bot::GetConfig("test_server"), std::dec),
           [this](const dpp::confirmation_callback_t &callback) {
             if (callback.is_error()) {
               this->bot->core->log(

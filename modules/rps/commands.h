@@ -17,9 +17,9 @@
                       bool is_moderator, dpp::channel *c, dpp::user *user);    \
     virtual ~__command_name__() = default;                                     \
     __command_name__(const __command_name__ &other);                           \
-    __command_name__(__command_name__ &&other) noexcept;                       \
+    __command_name__(__command_name__ &&other) noexcept = default;             \
     __command_name__ &operator=(const __command_name__ &other) = default;      \
-    __command_name__ &operator=(__command_name__ &&other) noexcept;            \
+    __command_name__ &operator=(__command_name__ &&other) noexcept = default;  \
   };
 #define DECLARE_COMMAND_CLASS_SELECT(__command_name__, __ancestor__)           \
   class __command_name__ : public __ancestor__ {                               \
@@ -35,7 +35,7 @@
     __command_name__(const __command_name__ &other);                           \
     __command_name__(__command_name__ &&other) noexcept;                       \
     __command_name__ &operator=(const __command_name__ &other) = default;      \
-    __command_name__ &operator=(__command_name__ &&other) noexcept;            \
+    __command_name__ &operator=(__command_name__ &&other) noexcept = default;  \
     virtual void select_click(const dpp::select_click_t &event,                \
                               const in_cmd &cmd, guild_settings_t &settings);  \
     virtual void button_click(const dpp::button_click_t &event,                \

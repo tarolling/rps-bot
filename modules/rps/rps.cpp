@@ -19,17 +19,16 @@
  ************************************************************************************/
 
 #include "rps.h"
+#include "state.h"
 #include "time.h"
 #include <cstdint>
 #include <dpp/dpp.h>
 #include <dpp/nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <fstream>
-#include <iostream>
 #include <sporks/modules.h>
 #include <sporks/statusfield.h>
 #include <sporks/stringops.h>
-#include <streambuf>
 #include <string>
 #include <unistd.h>
 
@@ -69,8 +68,10 @@ RPSModule::~RPSModule() {
   DisposeThread(presence_update);
 
   /* This explicitly calls the destructor on all states */
-  std::lock_guard<std::mutex> state_lock(states_mutex);
-  // states.clear();
+  {
+    std::lock_guard<std::mutex> state_lock(states_mutex);
+    state = nullptr;
+  }
 
   /* Delete these misc pointers, mostly regexps */
   delete lang;
@@ -121,9 +122,11 @@ bool RPSModule::OnAllShardsReady() {
     bot->core->log(dpp::ll_debug,
                    fmt::format("Not resuming games in test mode"));
     return true;
-  } else {
-    bot->core->log(dpp::ll_debug, "Resuming games...");
   }
+  bot->core->log(dpp::ll_debug, "Resuming games...");
+
+  /* Set up state */
+  this->state = state_t(this);
 
   return true;
 }
@@ -319,19 +322,16 @@ bool RPSModule::RealOnMessage(const dpp::message_create_t &message,
 
   //     guild_settings_t settings = GetGuildSettings(guild_id);
 
-  //     // Commands
-  //     if (lowercase(clean_message.substr(0, settings.prefix.length())) ==
-  //         lowercase(settings.prefix)) {
-  //       std::string command = clean_message.substr(
-  //           settings.prefix.length(),
-  //           clean_message.length() - settings.prefix.length());
-  //       queue_command(command, author_id, channel_id, guild_id, mentioned,
-  //                     username, is_from_dashboard, message.msg.author, gm);
-  //       bot->core->log(dpp::ll_info,
-  //                      fmt::format("CMD (USER={}, GUILD={}): <{}> {}",
-  //                                  author_id, guild_id, username,
-  //                                  clean_message));
-  //     }
+  // Commands
+  if (lowercase(clean_message.substr(0, 1)) == "!") {
+    std::string command = clean_message.substr(1, clean_message.length() - 1);
+    // queue_command(command, author_id, channel_id, guild_id, mentioned,
+    // username,
+    //               is_from_dashboard, message.msg.author, gm);
+    bot->core->log(dpp::ll_info,
+                   fmt::format("CMD (USER={}, GUILD={}): <{}> {}", author_id,
+                               guild_id, username, clean_message));
+  }
 
   //     // Answers for active games
   //     {
