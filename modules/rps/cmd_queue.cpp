@@ -84,7 +84,7 @@ void command_queue_t::call(const in_cmd &cmd, std::stringstream &tokens,
   std::vector<field_t> fields = {
       {"Want to join?", "Type `/queue` or `!queue` to join this lobby!",
        false}};
-  creator->EmbedWithFields(
+  creator->(
       cmd.interaction_token, cmd.command_id, settings,
       fmt::format("{} player{} in the queue", player_count, adjustment), fields,
       cmd.channel_id, "", "", cmd.user.get_avatar_url(1024),

@@ -1,4 +1,6 @@
-# Run Locally
+# Misc Notes
+
+## Run Locally
 
 If you are on a Linux distro, run the following commands for prerequisites.
 
@@ -15,3 +17,9 @@ had to install:
 > opus-tools
 > zlib1g-dev
 > libssl-dev
+
+## Comments
+
+Queue = collection of Lobbies
+Lobby = 1 or 2 players that will play each other
+Match = ongoing Lobby

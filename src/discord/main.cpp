@@ -21,6 +21,7 @@
 #include <dpp/dpp.h>
 #include <rps/commandline.h>
 #include <rps/config.h>
+#include <rps/game.h>
 #include <rps/listeners.h>
 #include <rps/logger.h>
 
@@ -53,7 +54,7 @@ int main(int argc, char const *argv[]) {
   // bot.on_form_submit(&game_input);
   bot.on_ready(&listeners::on_ready);
 
-  // db::init(bot);
+  game::init(bot);
 
   /* Start bot */
   bot.start(dpp::st_wait);
