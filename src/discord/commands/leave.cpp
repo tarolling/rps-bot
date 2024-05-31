@@ -1,8 +1,6 @@
 /************************************************************************************
  *
- * Copyright 2004 Craig Edwards <support@sporks.gg>
- *
- * Core based on Sporks, the Learning Discord Bot, Craig Edwards (c) 2019.
+ * Copyright 2024 tarolling
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +16,15 @@
  *
  ************************************************************************************/
 
-#pragma once
-#include <arpa/inet.h>
-#include <cerrno>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <exception>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <dpp/appcommand.h>
+#include <rps/commands/leave.h>
+
+dpp::slashcommand leave_command::register_command(dpp::cluster &bot) {
+  return dpp::slashcommand("leave", "Leave the RPS queue", bot.me.id)
+      .set_dm_permission(true);
+}
+
+void leave_command::route(const dpp::slashcommand_t &event) {
+  dpp::cluster *bot = event.from->creator;
+  event.reply("yo its leave");
+}

@@ -40,7 +40,36 @@ void command_leave_t::call(const in_cmd &cmd, std::stringstream &tokens,
                            const std::string &username, bool is_moderator,
                            dpp::channel *c, dpp::user *user) {
 
-  /* TODO: Free up game */
+  {
+    std::lock_guard<std::mutex> states_lock(creator->states_mutex);
+    auto player_game = creator->state.find_player_game(*user);
+    if (!player_game) {
+      /* Game not found */
+      creator->SimpleEmbed(cmd.interaction_token, cmd.command_id, settings, "",
+                           "You are not in a queue.", cmd.channel_id, "", "",
+                           "");
+      return;
+    }
+
+    if (player_game->players.size() == 2) {
+      /* Ongoing game */
+      creator->SimpleEmbed(cmd.interaction_token, cmd.command_id, settings, "",
+                           "You are already in an ongoing game.",
+                           cmd.channel_id, "", "", "");
+      return;
+    }
+
+    /* Delete game */
+    for (auto it = creator->state.games.begin();
+         it != creator->state.games.end(); ++it) {
+      if (it->id == player_game->id) {
+        creator->state.games.erase(it);
+        break;
+      }
+    }
+    creator->state.global_game_id--;
+  }
+
   creator->SimpleEmbed(cmd.interaction_token, cmd.command_id, settings, "",
                        fmt::format("**{}** has left.", username),
                        cmd.channel_id, "0 players are in the queue", "",

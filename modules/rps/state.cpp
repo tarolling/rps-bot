@@ -34,10 +34,12 @@
 #include <unistd.h>
 
 state_t::state_t()
-    : next_tick(time(nullptr)), creator(nullptr), terminating(false){};
+    : next_tick(time(nullptr)), creator(nullptr), terminating(false),
+      global_game_id(0){};
 
 state_t::state_t(RPSModule *_creator)
-    : next_tick(time(nullptr)), creator(_creator), terminating(false) {
+    : next_tick(time(nullptr)), creator(_creator), terminating(false),
+      global_game_id(0) {
   creator->GetBot()->core->log(dpp::ll_debug,
                                fmt::format("state_t::state_t()"));
 }
@@ -63,24 +65,11 @@ std::optional<rps_game> state_t::find_player_game(dpp::user &user) {
     return std::nullopt;
   }
 
-  creator->GetBot()->core->log(
-      dpp::ll_debug, fmt::format("FPG - Games Count: {}", games.size()));
-  for (const rps_game &temp_game : games) {
-    creator->GetBot()->core->log(
-        dpp::ll_debug,
-        fmt::format("FPG - Player Count: {}", temp_game.players.size()));
-    // for (const dpp::user &player : temp_game.players) {
-    //   creator->GetBot()->core->log(
-    //       dpp::ll_debug, fmt::format("FPG - Player ID: {}", player.id));
-    // }
-  }
-
   auto it =
       std::find_if(games.begin(), games.end(), [&user](const rps_game &game) {
-        return std::any_of(game.players.begin(), game.players.end(),
-                           [&user](const dpp::snowflake &player) {
-                             return player == user.id;
-                           });
+        return std::any_of(
+            game.players.begin(), game.players.end(),
+            [&user](const dpp::user &player) { return player.id == user.id; });
       });
 
   /* If a game is found, return it */
@@ -93,7 +82,7 @@ std::optional<rps_game> state_t::find_player_game(dpp::user &user) {
   return std::nullopt;
 }
 
-std::optional<rps_game> state_t::find_open_game() {
+std::optional<std::reference_wrapper<rps_game>> state_t::find_open_game() {
   auto it = std::find_if(games.begin(), games.end(), [=](const rps_game &game) {
     return game.players.size() < 2;
   });

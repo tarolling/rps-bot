@@ -1,8 +1,6 @@
 /************************************************************************************
  *
- * Copyright 2004 Craig Edwards <support@sporks.gg>
- *
- * Core based on Sporks, the Learning Discord Bot, Craig Edwards (c) 2019.
+ * Copyright 1993,2001,2023 Craig Edwards <brain@ssod.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +15,12 @@
  * limitations under the License.
  *
  ************************************************************************************/
-
 #pragma once
-#include <string>
+#include <rps/command.h>
+#include <rps/rps.h>
 
-/**
- * Represents a simple string name/value pair that can be instantiated at
- * compile time for field lists used with embeds.
- */
-struct statusfield {
-  /** Name */
-  std::string name;
-  /** Value, max size 2048 */
-  std::string value;
-  /** Constructor */
-  statusfield(const std::string &a, const std::string &b);
+struct queue_command : public command {
+  static constexpr std::string_view name{"queue"};
+  static dpp::slashcommand register_command(dpp::cluster &bot);
+  static void route(const dpp::slashcommand_t &event);
 };

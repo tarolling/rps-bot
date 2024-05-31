@@ -1,39 +1,58 @@
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.22.1)
 
-project(rps
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(BOT_NAME rps)
+
+project(${BOT_NAME}
     VERSION 1.0.0
     DESCRIPTION "New Ranked RPS League"
     LANGUAGES CXX
 )
 
 aux_source_directory(src/discord bot_src)
-add_executable(discord_bot ${bot_src})
-
-aux_source_directory(src/domain server_src)
-add_executable(server ${server_src})
+aux_source_directory(src/discord/commands bot_src)
+add_executable(${BOT_NAME} ${bot_src})
 
 string(ASCII 27 Esc)
 
-include_directories(include)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set_target_properties(${BOT_NAME} PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+)
 
-target_link_libraries(discord_bot dl dpp fmt spdlog)
-target_link_libraries(server)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
+find_package(DPP REQUIRED CONFIG)
+find_package(OpenSSL REQUIRED)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread -g -O2 -fPIC -rdynamic -DFMT_HEADER_ONLY -Wno-deprecated-declarations")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2")
+# TODO: Remove manually-set DPP include and library directories
+set(DPP_INCLUDE_DIR "/usr/include/dpp")
+set(DPP_LIBRARIES "/usr/local/lib/libdpp.so")
 
-# Modules
-set(modules_dir "modules")
-file(GLOB subdirlist ${modules_dir}/*)
+set(CMAKE_CXX_FLAGS "-g -O2 -rdynamic -Wall -Wno-psabi -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough -Wmissing-field-initializers -Wsign-compare -Wtype-limits -Wuninitialized -Wshift-negative-value")
+target_compile_definitions(${BOT_NAME} PUBLIC DPP_CORO=ON)
 
-foreach(fullmodname ${subdirlist})
-    get_filename_component(modname ${fullmodname} NAME)
-    message(STATUS "Found module '${Esc}[1;34mmodule_${modname}${Esc}[m'")
-    set(modsrc "")
-    aux_source_directory(${modules_dir}/${modname} modsrc)
-    add_library(module_${modname} SHARED ${modsrc})
-    set_target_properties(module_${modname} PROPERTIES PREFIX "")
-endforeach(fullmodname)
+target_include_directories(${BOT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${DPP_INCLUDE_DIR}
+)
+
+target_link_libraries(${BOT_NAME} PUBLIC
+    fmt
+    spdlog
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${DPP_LIBRARIES}
+)
+
+# # Print out some diagnostic information
+# message(STATUS "DPP include directory: ${DPP_INCLUDE_DIR}")
+# message(STATUS "DPP libraries: ${DPP_LIBRARIES}")
+# message(STATUS "CMake thread libs init: ${CMAKE_THREAD_LIBS_INIT}")
+
+# # Optionally, add debugging info
+# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+# message(STATUS "Debug build: Adding debug information.")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+# endif()

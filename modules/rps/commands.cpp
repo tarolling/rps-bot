@@ -90,6 +90,7 @@ void RPSModule::SetupCommands() {
             .set_description(c.second->description)
             .set_application_id(from_string<dpp::snowflake>(
                 Bot::GetConfig("application_id"), std::dec));
+        /* TODO: fix "Unknown Application" error during live mode */
         bot->core->log(dpp::ll_debug,
                        fmt::format("what is this -> {}", sc.application_id));
         for (auto &o : c.second->opts) {

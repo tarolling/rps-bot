@@ -21,6 +21,7 @@
 #include "rps.h"
 #include <cstdint>
 #include <dpp/dpp.h>
+#include <dpp/misc-enum.h>
 #include <dpp/nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <sporks/modules.h>
@@ -95,15 +96,14 @@ void RPSModule::ProcessEmbed(const std::string &interaction_token,
             settings.guild_id) {
       try {
         if (!interaction_token.empty() && command_id != 0) {
-          dpp::message msg(channelID, fmt::format(_("EMBED_ERROR_1"),
-                                                  cleaned_json, e.what()));
+          dpp::message msg(
+              channelID, fmt::format("EMBED_ERROR_1", cleaned_json, e.what()));
           msg.guild_id = settings.guild_id;
           msg.channel_id = channelID;
           bot->core->interaction_response_edit(interaction_token, msg);
         } else {
-          bot->core->message_create(
-              dpp::message(channelID, fmt::format(_("EMBED_ERROR_1"),
-                                                  cleaned_json, e.what())));
+          bot->core->message_create(dpp::message(
+              channelID, fmt::format("EMBED_ERROR_1", cleaned_json, e.what())));
         }
       } catch (const std::exception &e) {
         bot->core->log(dpp::ll_error,
@@ -208,16 +208,15 @@ void RPSModule::EmbedWithFields(
     const std::string &thumbnail, const std::string &description) {
   uint32_t color = settings.embedcolor;
   std::string json;
+
+  json = "{" + (!url.empty() ? R"("url":")" + escape_json(url) + "\"," : "");
   if (!description.empty()) {
-    json = fmt::format(
-        "{{" + (!url.empty() ? R"("url":")" + escape_json(url) + "\"," : "") +
-            R"("title":"{}","description":"{}","color":{},"fields":[)",
-        escape_json(title), escape_json(description), color);
+    json +=
+        fmt::format(R"("title":"{}","description":"{}","color":{},"fields":[)",
+                    escape_json(title), escape_json(description), color);
   } else {
-    json = fmt::format(
-        "{{" + (!url.empty() ? R"("url":")" + escape_json(url) + "\"," : "") +
-            R"("title":"{}","color":{},"fields":[)",
-        escape_json(title), color);
+    json += fmt::format(R"("title":"{}","color":{},"fields":[)",
+                        escape_json(title), color);
   }
   for (auto v = fields.begin(); v != fields.end(); ++v) {
     json += fmt::format(R"({{"name":"{}","value":"{}","inline":{}}})",

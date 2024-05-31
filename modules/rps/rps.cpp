@@ -19,6 +19,7 @@
  ************************************************************************************/
 
 #include "rps.h"
+#include "game_controller.h"
 #include "state.h"
 #include "time.h"
 #include <cstdint>
@@ -70,11 +71,12 @@ RPSModule::~RPSModule() {
   /* This explicitly calls the destructor on all states */
   {
     std::lock_guard<std::mutex> state_lock(states_mutex);
-    state = nullptr;
+    this->state = nullptr;
   }
 
   /* Delete these misc pointers, mostly regexps */
   delete lang;
+  this->controller = nullptr;
 }
 
 bool RPSModule::OnPresenceUpdate() {
@@ -127,6 +129,7 @@ bool RPSModule::OnAllShardsReady() {
 
   /* Set up state */
   this->state = state_t(this);
+  this->controller = game_controller(this);
 
   return true;
 }

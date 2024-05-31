@@ -17,7 +17,7 @@ C++ version of Ranked RPS bot. Architecture directly inspired by:
 | Name | Version |
 | ---- | ------- |
 | [CMake](https://cmake.org/) | 3.16.3+ |
-| [D++](https://github.com/brainboxdotcc/DPP) | 10.0.29 |
+| [D++](https://github.com/brainboxdotcc/DPP) | 10.0.30 |
 | [fmtlib](https://github.com/fmtlib/fmt) | 6.1.2 |
 | [spdlog](https://github.com/gabime/spdlog) | 1.5.0 |
 

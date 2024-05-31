@@ -19,9 +19,12 @@
  ************************************************************************************/
 
 #include "commands.h"
+#include "game_controller.h"
 #include "rps.h"
 #include "state.h"
+#include <cstdint>
 #include <dpp/dpp.h>
+#include <dpp/misc-enum.h>
 #include <dpp/nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <mutex>
@@ -44,7 +47,7 @@ void command_queue_t::call(const in_cmd &cmd, std::stringstream &tokens,
                            const std::string &username, bool is_moderator,
                            dpp::channel *c, dpp::user *user) {
   size_t player_count = 0;
-
+  struct rps_game active_game;
   {
     std::lock_guard<std::mutex> states_lock(creator->states_mutex);
     auto player_game = creator->state.find_player_game(*user);
@@ -58,15 +61,20 @@ void command_queue_t::call(const in_cmd &cmd, std::stringstream &tokens,
 
     /* No player game found, finding open game */
     auto open_game = creator->state.find_open_game();
-    rps_game game;
 
     if (!open_game) {
-      game = creator->state.games.emplace_back(game);
-      game.players.push_back(user->id);
+      struct rps_game game;
+      creator->state.global_game_id =
+          creator->state.global_game_id + 1 % UINT32_MAX;
+      game.id = creator->state.global_game_id;
+      game.players.push_back(*user);
+      creator->state.games.push_back(game);
       player_count = 1;
     } else {
-      game = open_game.value();
-      game.players.push_back(user->id);
+      rps_game &found_game = open_game.value().get();
+      found_game.id = creator->state.global_game_id;
+      found_game.players.push_back(*user);
+      active_game = found_game;
       player_count = 2;
     }
   }
@@ -79,6 +87,10 @@ void command_queue_t::call(const in_cmd &cmd, std::stringstream &tokens,
   creator->EmbedWithFields(
       cmd.interaction_token, cmd.command_id, settings,
       fmt::format("{} player{} in the queue", player_count, adjustment), fields,
-      cmd.channel_id, "", "", user->get_avatar_url(1024),
+      cmd.channel_id, "", "", cmd.user.get_avatar_url(1024),
       fmt::format("**{}** has joined.", username));
+
+  if (player_count == 2) {
+    creator->controller.play_series(active_game);
+  }
 }

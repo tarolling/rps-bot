@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commands.h"
+#include "game_controller.h"
 #include "settings.h"
 #include "state.h"
 #include <deque>
@@ -52,13 +53,14 @@ public:
   json *lang;
   std::mutex states_mutex;
   state_t state;
+  game_controller controller;
   RPSModule(Bot *instigator, ModuleLoader *ml);
   Bot *GetBot();
   virtual ~RPSModule();
-  RPSModule(const RPSModule &other);                     // copy constructor
-  RPSModule(RPSModule &&other) noexcept;                 // move constructor
-  RPSModule &operator=(const RPSModule &other) = delete; // copy assignment
-  RPSModule &operator=(RPSModule &&other) noexcept;      // move assignment
+  RPSModule(const RPSModule &other) = delete;                // copy constructor
+  RPSModule(RPSModule &&other) noexcept = delete;            // move constructor
+  RPSModule &operator=(const RPSModule &other) = delete;     // copy assignment
+  RPSModule &operator=(RPSModule &&other) noexcept = delete; // move assignment
   void SetupCommands();
   void HandleInteraction(const dpp::interaction_create_t &event);
   void HandleSelect(const dpp::select_click_t &event);
