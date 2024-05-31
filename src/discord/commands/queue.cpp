@@ -20,6 +20,7 @@
 #include <dpp/message.h>
 #include <rps/commands/queue.h>
 #include <rps/game.h>
+#include <rps/game_manager.h>
 
 dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
   return dpp::slashcommand("queue", "Enter into the RPS queue", bot.me.id)
@@ -40,6 +41,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   }
 
   /* No player game found, finding open game */
+  /* Consolidate most methods into game.cpp */
   auto open_lobby = game::find_open_lobby();
   if (!open_lobby) {
     struct game::rps_lobby lobby;
@@ -72,4 +74,8 @@ void queue_command::route(const dpp::slashcommand_t &event) {
                           .set_text("Powered By RPS Bot")
                           .set_icon("https://i.imgur.com/R19P703.png")));
   event.reply(confirmation);
+
+  if (player_count == 2) {
+    game_manager::handle_game(event, match);
+  }
 }
