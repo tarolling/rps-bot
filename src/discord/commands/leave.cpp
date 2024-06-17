@@ -16,9 +16,9 @@
  *
  ************************************************************************************/
 
-#include "rps/game.h"
 #include <dpp/appcommand.h>
 #include <rps/commands/leave.h>
+#include <rps/game.h>
 
 dpp::slashcommand leave_command::register_command(dpp::cluster &bot) {
   return dpp::slashcommand("leave", "Leave the RPS queue", bot.me.id)
@@ -28,22 +28,21 @@ dpp::slashcommand leave_command::register_command(dpp::cluster &bot) {
 void leave_command::route(const dpp::slashcommand_t &event) {
   dpp::cluster *bot = event.from->creator;
 
-  auto player_lobby = game::find_player_lobby(event.command.usr);
-  if (!player_lobby) {
+  auto player_lobby_id = game::find_player_lobby_id(event.command.usr);
+  if (player_lobby_id == 0) {
     /* Lobby not found */
     event.reply("You are not in a lobby.");
     return;
   }
 
-  if (player_lobby->players.size() == 2) {
+  if (game::get_num_players(player_lobby_id) == 2) {
     /* Match found */
     event.reply("You are already in a match.");
     return;
   }
 
   /* Delete game */
-  game::remove_lobby_from_queue(player_lobby.value());
-  game::decrement_global_lobby_id();
+  game::remove_lobby_from_queue(player_lobby_id, false);
 
   /* Send confirmation embed */
   dpp::message confirmation;

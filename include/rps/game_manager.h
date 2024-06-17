@@ -18,12 +18,11 @@
 
 #pragma once
 
+#include <dpp/coro/task.h>
 #include <dpp/dispatcher.h>
 #include <rps/game.h>
 
 namespace game_manager {
-auto play_game(const dpp::slashcommand_t &event,
-               const struct game::rps_lobby &game);
-void handle_game(const dpp::slashcommand_t &event,
-                 const struct game::rps_lobby &game);
+void play_game(game::rps_lobby &game, game::player_info &player_info);
+void handle_game(game::rps_lobby &game);
 } // namespace game_manager

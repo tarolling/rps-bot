@@ -15,13 +15,19 @@
  * limitations under the License.
  *
  ************************************************************************************/
+#include "rps/game.h"
+#include <dpp/misc-enum.h>
+#include <dpp/once.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
 #include <malloc.h>
+#include <mutex>
 #include <rps/command.h>
 #include <rps/listeners.h>
 
 #include <rps/commands/leave.h>
 #include <rps/commands/queue.h>
+#include <string>
 
 namespace listeners {
 
@@ -83,5 +89,24 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
                   event.command.usr.format_username(), event.command.usr.id,
                   event.command.guild_id, event.command.locale,
                   (dpp::utility::time_f() - start) * 1000));
+}
+
+void on_buttonclick(const dpp::button_click_t &event) {
+  /* Instance of game */
+  if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
+      event.custom_id == "Scissors") {
+    /* Go find player and set their choice */
+    event.from->log(
+        dpp::ll_debug,
+        fmt::format("testing!! from {}",
+                    event.command.get_issuing_user().format_username()));
+    event.reply();
+
+    auto player_info = game::get_player_info(event.command.get_issuing_user());
+
+    game::set_player_choice(event.command.get_issuing_user(), event.custom_id);
+    game::notify_player_cv(event.command.get_issuing_user());
+    event.from->log(dpp::ll_debug, "notified on cond var");
+  }
 }
 } // namespace listeners

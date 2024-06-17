@@ -16,6 +16,7 @@
  *
  ************************************************************************************/
 #pragma once
+#include <dpp/dispatcher.h>
 #include <dpp/dpp.h>
 
 /**
@@ -35,6 +36,13 @@ void on_ready(const dpp::ready_t &event);
  * @param event slashcommand_t
  */
 void on_slashcommand(const dpp::slashcommand_t &event);
+
+/**
+ * @brief handle button click
+ *
+ * @param event
+ */
+void on_buttonclick(const dpp::button_click_t &event);
 
 /**
  * @brief Return json command definitions

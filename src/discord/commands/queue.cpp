@@ -18,6 +18,7 @@
 
 #include <dpp/appcommand.h>
 #include <dpp/message.h>
+#include <dpp/misc-enum.h>
 #include <rps/commands/queue.h>
 #include <rps/game.h>
 #include <rps/game_manager.h>
@@ -31,31 +32,26 @@ dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
 
 void queue_command::route(const dpp::slashcommand_t &event) {
   dpp::cluster *bot = event.from->creator;
-  size_t player_count = 0;
-  struct game::rps_lobby match;
-  auto player_lobby = game::find_player_lobby(event.command.usr);
-  if (player_lobby) {
+  unsigned long player_count = 0;
+  unsigned int player_lobby_id = game::find_player_lobby_id(event.command.usr);
+  if (player_lobby_id != 0) {
     /* Game found */
     event.reply("You are already in a lobby.");
     return;
   }
 
   /* No player game found, finding open game */
-  /* Consolidate most methods into game.cpp */
-  auto open_lobby = game::find_open_lobby();
-  if (!open_lobby) {
-    struct game::rps_lobby lobby;
-    game::increment_global_lobby_id();
-    lobby.id = game::get_global_lobby_id();
-    lobby.players.push_back(event.command.usr);
-    game::add_lobby_to_queue(lobby);
-    player_count = 1;
+  unsigned int open_lobby_id = game::find_open_lobby_id();
+
+  if (open_lobby_id == 0) {
+    open_lobby_id = game::create_lobby();
+    game::add_player_to_lobby(open_lobby_id, event);
+    player_count = game::get_num_players(open_lobby_id);
   } else {
-    game::rps_lobby &found_lobby = open_lobby.value().get();
-    found_lobby.id = game::get_global_lobby_id();
-    found_lobby.players.push_back(event.command.usr);
-    match = found_lobby;
-    player_count = 2;
+    game::add_player_to_lobby(open_lobby_id, event);
+    bot->log(dpp::ll_debug, fmt::format("player count: {}",
+                                        game::get_num_players(open_lobby_id)));
+    player_count = game::get_num_players(open_lobby_id);
   }
 
   /* Send confirmation embed */
@@ -76,6 +72,8 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   event.reply(confirmation);
 
   if (player_count == 2) {
-    game_manager::handle_game(event, match);
+    game::rps_lobby new_game = game::get_lobby(open_lobby_id);
+    std::thread game_thread(game_manager::handle_game, std::ref(new_game));
+    game_thread.detach();
   }
 }
