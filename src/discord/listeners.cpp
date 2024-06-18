@@ -95,18 +95,11 @@ void on_buttonclick(const dpp::button_click_t &event) {
   /* Instance of game */
   if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
       event.custom_id == "Scissors") {
-    /* Go find player and set their choice */
-    event.from->log(
-        dpp::ll_debug,
-        fmt::format("testing!! from {}",
-                    event.command.get_issuing_user().format_username()));
     event.reply();
 
-    auto player_info = game::get_player_info(event.command.get_issuing_user());
-
-    game::set_player_choice(event.command.get_issuing_user(), event.custom_id);
-    game::notify_player_cv(event.command.get_issuing_user());
-    event.from->log(dpp::ll_debug, "notified on cond var");
+    /* Spawn worker so sync methods don't block main event loop */
+    std::thread worker(game::handle_game, std::ref(event));
+    worker.detach();
   }
 }
 } // namespace listeners

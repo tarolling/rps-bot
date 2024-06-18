@@ -21,7 +21,6 @@
 #include <dpp/misc-enum.h>
 #include <rps/commands/queue.h>
 #include <rps/game.h>
-#include <rps/game_manager.h>
 
 dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
   return dpp::slashcommand("queue", "Enter into the RPS queue", bot.me.id)
@@ -33,7 +32,8 @@ dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
 void queue_command::route(const dpp::slashcommand_t &event) {
   dpp::cluster *bot = event.from->creator;
   unsigned long player_count = 0;
-  unsigned int player_lobby_id = game::find_player_lobby_id(event.command.usr);
+  unsigned int player_lobby_id =
+      game::find_player_lobby_id(event.command.usr.id);
   if (player_lobby_id != 0) {
     /* Game found */
     event.reply("You are already in a lobby.");
@@ -72,8 +72,6 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   event.reply(confirmation);
 
   if (player_count == 2) {
-    game::rps_lobby new_game = game::get_lobby(open_lobby_id);
-    std::thread game_thread(game_manager::handle_game, std::ref(new_game));
-    game_thread.detach();
+    game::send_game_messages(open_lobby_id);
   }
 }
