@@ -7,12 +7,14 @@ sudo apt-get clean && \
 sudo rm -rf /var/lib/apt/lists/*
 # Symlink weirdness
 sudo ldconfig /x86_64-linux-gnu/
+
+
 # Install DPP dependency
-wget -O dpp.deb https://github.com/brainboxdotcc/DPP/releases/download/v10.0.29/libdpp-10.0.29-linux-x64.deb
+wget -O dpp.deb https://github.com/brainboxdotcc/DPP/releases/download/v10.0.30/libdpp-10.0.30-linux-x64.deb
 sudo -s dpkg -i dpp.deb
 rm dpp.deb
 
 rm -rf build/
 mkdir build && cd build || exit
-cmake -S .. -B .
+cmake -S .. -B . -DDPP_CORO=on
 make -j "$(nproc)"

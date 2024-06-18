@@ -1,8 +1,6 @@
 /************************************************************************************
  *
- * Copyright 2004 Craig Edwards <support@sporks.gg>
- *
- * Core based on Sporks, the Learning Discord Bot, Craig Edwards (c) 2019.
+ * Copyright 1993,2001,2023 Craig Edwards <brain@ssod.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +15,40 @@
  * limitations under the License.
  *
  ************************************************************************************/
-
 #pragma once
-#include <arpa/inet.h>
-#include <cerrno>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <exception>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <dpp/dispatcher.h>
+#include <dpp/dpp.h>
+
+/**
+ * @brief Event listeners for DPP events
+ */
+namespace listeners {
+/**
+ * @brief handle shard ready
+ *
+ * @param event ready_t
+ */
+void on_ready(const dpp::ready_t &event);
+
+/**
+ * @brief handle slash command
+ *
+ * @param event slashcommand_t
+ */
+void on_slashcommand(const dpp::slashcommand_t &event);
+
+/**
+ * @brief handle button click
+ *
+ * @param event
+ */
+void on_buttonclick(const dpp::button_click_t &event);
+
+/**
+ * @brief Return json command definitions
+ * @param bot cluster reference
+ * @return std::string bot command definitions
+ */
+std::string json_commands(dpp::cluster &bot);
+
+}; // namespace listeners

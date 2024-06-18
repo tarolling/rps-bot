@@ -1,11 +1,11 @@
 [![Build](https://github.com/tarolling/rps-bot-cpp/actions/workflows/docker-image.yml/badge.svg)](https://github.com/tarolling/rps-bot-cpp/actions/workflows/docker-image.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/28b8cd2334a54aecb26c1386f877d169)](https://app.codacy.com/gh/tarolling/rps-bot-cpp/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 # rps-bot-cpp
 
-C++ version of Ranked RPS bot. Architecture directly inspired by:
-
-- TriviaBot: <https://github.com/brainboxdotcc/triviabot>
+C++ version of Ranked RPS bot. Architecture directly inspired by
+[The Seven Spells Of Destruction](<https://github.com/brainboxdotcc/ssod>).
+If you like what you see, leave a star! I need stars to convince my family
+to feed me :D
 
 ## Invite To Your Server
 
@@ -17,8 +17,8 @@ C++ version of Ranked RPS bot. Architecture directly inspired by:
 
 | Name | Version |
 | ---- | ------- |
-| [CMake](https://cmake.org/) | 3.16.3+ |
-| [D++](https://github.com/brainboxdotcc/DPP) | 10.0.29 |
+| [CMake](https://cmake.org/) | 3.22.1+ |
+| [D++](https://github.com/brainboxdotcc/DPP) | 10.0.30 |
 | [fmtlib](https://github.com/fmtlib/fmt) | 6.1.2 |
 | [spdlog](https://github.com/gabime/spdlog) | 1.5.0 |
 
