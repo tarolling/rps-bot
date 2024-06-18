@@ -1,5 +1,4 @@
 {
     "EMBED_ERROR_1": "I can't make an **embed** from this: ```js\n{0}\n```**Error:** `{1}`",
-    "POWERED_BY": "Powered By RPS Bot",
-    
+    "POWERED_BY": "Powered By RPS Bot"
 }
