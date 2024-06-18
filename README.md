@@ -2,9 +2,10 @@
 
 # rps-bot-cpp
 
-C++ version of Ranked RPS bot. Architecture directly inspired by:
-
-- TriviaBot: <https://github.com/brainboxdotcc/triviabot>
+C++ version of Ranked RPS bot. Architecture directly inspired by
+[The Seven Spells Of Destruction](<https://github.com/brainboxdotcc/ssod>).
+If you like what you see, leave a star! I need stars to convince my family
+to feed me :D
 
 ## Invite To Your Server
 
@@ -16,7 +17,7 @@ C++ version of Ranked RPS bot. Architecture directly inspired by:
 
 | Name | Version |
 | ---- | ------- |
-| [CMake](https://cmake.org/) | 3.16.3+ |
+| [CMake](https://cmake.org/) | 3.22.1+ |
 | [D++](https://github.com/brainboxdotcc/DPP) | 10.0.30 |
 | [fmtlib](https://github.com/fmtlib/fmt) | 6.1.2 |
 | [spdlog](https://github.com/gabime/spdlog) | 1.5.0 |
