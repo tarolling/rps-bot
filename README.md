@@ -13,14 +13,19 @@ to feed me :D
 
 ## Development
 
+### Discord
+
+[Join our Discord](https://discord.gg/9msWyzbf84) to play with the bot, or ask
+questions related to development!
+
 ### Dependencies
 
 | Name | Version |
 | ---- | ------- |
 | [CMake](https://cmake.org/) | 3.22.1+ |
 | [D++](https://github.com/brainboxdotcc/DPP) | 10.0.30 |
-| [fmtlib](https://github.com/fmtlib/fmt) | 6.1.2 |
-| [spdlog](https://github.com/gabime/spdlog) | 1.5.0 |
+| [fmtlib](https://github.com/fmtlib/fmt) | 9.1.0 |
+| [spdlog](https://github.com/gabime/spdlog) | 1.12.0 |
 
 ### Additional Instructions
 
