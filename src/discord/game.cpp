@@ -16,7 +16,9 @@
  *
  ************************************************************************************/
 
+#include "rps/embeds.h"
 #include <dpp/exception.h>
+#include <dpp/message.h>
 #include <dpp/misc-enum.h>
 #include <dpp/snowflake.h>
 #include <fmt/format.h>
@@ -208,7 +210,6 @@ rps_lobby get_lobby(const unsigned int lobby_id) {
 
 unsigned int get_player_score(const unsigned int lobby_id,
                               const dpp::snowflake &player_id) {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
       for (const auto &player_info : lobby.players) {
@@ -256,7 +257,6 @@ void increment_player_score(const unsigned int lobby_id,
 }
 
 unsigned int get_game_num(const unsigned int lobby_id) {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
       return lobby.game_number;
@@ -350,34 +350,30 @@ std::string calculate_winner(const std::string &player_one_choice,
 }
 
 void send_game_messages(const unsigned int lobby_id) {
-  dpp::message msg = dpp::message(
-      fmt::format("Lobby #{} - Game {}", lobby_id, get_game_num(lobby_id)));
-  msg.add_component(
-      dpp::component()
-          .add_component(dpp::component()
-                             .set_type(dpp::component_type::cot_button)
-                             .set_label("Rock")
-                             .set_id("Rock")
-                             .set_style(dpp::component_style::cos_primary))
-          .add_component(dpp::component()
-                             .set_type(dpp::component_type::cot_button)
-                             .set_label("Paper")
-                             .set_id("Paper")
-                             .set_style(dpp::component_style::cos_primary))
-          .add_component(dpp::component()
-                             .set_type(dpp::component_type::cot_button)
-                             .set_label("Scissors")
-                             .set_id("Scissors")
-                             .set_style(dpp::component_style::cos_primary)));
-
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+
+  rps_lobby found_lobby;
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
-      for (const auto &player_info : lobby.players) {
-        player_info->init_interaction.from->creator->direct_message_create_sync(
-            player_info->player.id, msg);
-      }
+      found_lobby = lobby;
+      break;
     }
+  }
+
+  std::string player_one_name =
+      found_lobby.players.front()->player.format_username();
+  unsigned int player_one_score =
+      get_player_score(lobby_id, found_lobby.players.front()->player.id);
+  std::string player_two_name =
+      found_lobby.players.back()->player.format_username();
+  unsigned int player_two_score =
+      get_player_score(lobby_id, found_lobby.players.back()->player.id);
+
+  for (const auto &player_info : found_lobby.players) {
+    player_info->init_interaction.from->creator->direct_message_create_sync(
+        player_info->player.id,
+        embeds::game(lobby_id, get_game_num(lobby_id), player_one_name,
+                     player_one_score, player_two_name, player_two_score));
   }
 }
 
@@ -393,9 +389,14 @@ bool is_game_complete(const unsigned int lobby_id) {
 }
 
 void send_result_messages(const unsigned int lobby_id,
-                          const unsigned int winner, const unsigned int loser) {
+                          const unsigned int winner, const unsigned int loser,
+                          bool draw) {
   dpp::message msg_win = dpp::message("Game win!");
   dpp::message msg_loss = dpp::message("Game loss.");
+  if (draw) {
+    msg_win = dpp::message("Game draw.");
+    msg_loss = dpp::message("Game draw.");
+  }
 
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
@@ -432,6 +433,8 @@ void handle_game(const dpp::button_click_t &event) {
     } else if (result == "2") {
       increment_player_score(player_lobby_id, 2);
       send_result_messages(player_lobby_id, 2, 1);
+    } else {
+      send_result_messages(player_lobby_id, 1, 2, true);
     }
 
     if (is_game_complete(player_lobby_id)) {

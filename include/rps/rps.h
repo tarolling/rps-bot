@@ -16,18 +16,16 @@
  *
  ************************************************************************************/
 #pragma once
-#include <atomic>
-#include <cstdint>
+
 #include <dpp/dpp.h>
 #include <fmt/core.h>
+#include <string>
 
 namespace fs = std::filesystem;
 
-#define RPS_VERSION "rps@1.0.0"
+constexpr std::string_view RPS_VERSION = "rps@1.0.0";
 
 using json = dpp::json;
-
-#define EMBED_COLOUR 0xd5b994
 
 /**
  *  trim from end of string (right)
@@ -69,19 +67,3 @@ inline int atoi(const std::string &str) {
     return 0;
   return atoi(str.c_str());
 }
-
-struct item_desc {
-  std::string name{};
-  std::string description{};
-};
-
-struct item {
-  std::string name{};
-  std::string flags{};
-};
-
-struct stacked_item {
-  std::string name{};
-  std::string flags{};
-  long qty{1};
-};

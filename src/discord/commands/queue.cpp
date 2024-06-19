@@ -20,6 +20,7 @@
 #include <dpp/message.h>
 #include <dpp/misc-enum.h>
 #include <rps/commands/queue.h>
+#include <rps/embeds.h>
 #include <rps/game.h>
 
 dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
@@ -31,12 +32,13 @@ dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
 
 void queue_command::route(const dpp::slashcommand_t &event) {
   dpp::cluster *bot = event.from->creator;
-  unsigned long player_count = 0;
+
   unsigned int player_lobby_id =
       game::find_player_lobby_id(event.command.usr.id);
   if (player_lobby_id != 0) {
     /* Game found */
-    event.reply("You are already in a lobby.");
+    event.reply(dpp::message("You are already in a lobby.")
+                    .set_flags(dpp::m_ephemeral));
     return;
   }
 
@@ -45,33 +47,16 @@ void queue_command::route(const dpp::slashcommand_t &event) {
 
   if (open_lobby_id == 0) {
     open_lobby_id = game::create_lobby();
-    game::add_player_to_lobby(open_lobby_id, event);
-    player_count = game::get_num_players(open_lobby_id);
-  } else {
-    game::add_player_to_lobby(open_lobby_id, event);
-    bot->log(dpp::ll_debug, fmt::format("player count: {}",
-                                        game::get_num_players(open_lobby_id)));
-    player_count = game::get_num_players(open_lobby_id);
   }
 
+  game::add_player_to_lobby(open_lobby_id, event);
+  unsigned int player_count = game::get_num_players(open_lobby_id);
+
   /* Send confirmation embed */
-  dpp::message confirmation;
-  std::string adjustment = (player_count == 1) ? " is" : "s are";
-  confirmation.add_embed(
-      dpp::embed()
-          .set_title(
-              fmt::format("{} player{} in the queue", player_count, adjustment))
-          .add_field("Want to join?",
-                     "Type `/queue` or `!queue` to join this lobby!")
-          .set_description(fmt::format("**{}** has joined.",
-                                       event.command.usr.format_username()))
-          .set_thumbnail(event.command.usr.get_avatar_url(1024))
-          .set_footer(dpp::embed_footer()
-                          .set_text("Powered By RPS Bot")
-                          .set_icon("https://i.imgur.com/R19P703.png")));
-  event.reply(confirmation);
+  event.reply(embeds::queue(event.command.usr, player_count));
 
   if (player_count == 2) {
+    bot->log(dpp::ll_debug, fmt::format("Lobby {} started!", open_lobby_id));
     game::send_game_messages(open_lobby_id);
   }
 }

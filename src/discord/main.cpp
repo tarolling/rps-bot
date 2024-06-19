@@ -18,10 +18,13 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+
+#include <cstdlib>
 #include <dpp/dpp.h>
 #include <rps/commandline.h>
 #include <rps/config.h>
 #include <rps/game.h>
+#include <rps/lang.h>
 #include <rps/listeners.h>
 #include <rps/logger.h>
 
@@ -36,11 +39,11 @@ int main(int argc, char const *argv[]) {
                    cli.cluster_id, cli.max_clusters, true,
                    dpp::cache_policy::cpol_none);
 
-  // i18n::load_lang(bot);
+  i18n::load_lang(bot);
 
   if (cli.display_commands) {
     std::cerr << listeners::json_commands(bot) << "\n";
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 
   bot.set_websocket_protocol(dpp::ws_etf);
@@ -50,8 +53,6 @@ int main(int argc, char const *argv[]) {
   bot.on_log(&logger::log);
   bot.on_slashcommand(&listeners::on_slashcommand);
   bot.on_button_click(&listeners::on_buttonclick);
-  // bot.on_select_click(&game_select);
-  // bot.on_form_submit(&game_input);
   bot.on_ready(&listeners::on_ready);
 
   /* Initialize game state */
