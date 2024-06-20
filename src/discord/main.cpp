@@ -35,9 +35,10 @@ int main(int argc, char const *argv[]) {
   logger::init(config::get("log"));
   commandline_config cli = commandline::parse(argc, argv);
 
-  dpp::cluster bot(config::get("token"), dpp::i_guilds, config::get("shards"),
-                   cli.cluster_id, cli.max_clusters, true,
-                   dpp::cache_policy::cpol_none);
+  auto token = cli.dev ? config::get("dev_token") : config::get("live_token");
+
+  dpp::cluster bot(token, dpp::i_guilds, config::get("shards"), cli.cluster_id,
+                   cli.max_clusters, true, dpp::cache_policy::cpol_none);
 
   i18n::load_lang(bot);
 

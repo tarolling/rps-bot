@@ -24,15 +24,20 @@
  */
 struct commandline_config {
   /**
-   * Current cluster ID for this process
+   * @brief Whether bot is in development mode
+   */
+  bool dev{false};
+
+  /**
+   * @brief Current cluster ID for this process
    */
   uint32_t cluster_id{0};
   /**
-   * Total number of clusters that are running
+   * @brief Total number of clusters that are running
    */
   uint32_t max_clusters{0};
   /**
-   * If true, display command definitions as json
+   * @brief If true, display command definitions as json
    */
   bool display_commands{false};
 };

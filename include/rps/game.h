@@ -25,15 +25,14 @@
 #include <dpp/timer.h>
 #include <dpp/user.h>
 #include <memory>
-#include <utility>
 
 namespace game {
 struct player_info {
   dpp::user player;
   dpp::slashcommand_t init_interaction;
+  dpp::timer player_timer{};
   std::string choice;
   unsigned int score{0};
-  dpp::timer game_timer{};
 
   player_info(const dpp::user &p, dpp::slashcommand_t i)
       : player(p), init_interaction(std::move(i)) {}
@@ -67,15 +66,10 @@ unsigned int find_player_lobby_id(const dpp::snowflake player_id);
  */
 unsigned int find_open_lobby_id();
 
-unsigned int get_global_lobby_id();
-void increment_global_lobby_id();
-void decrement_global_lobby_id();
 void remove_lobby_from_queue(const unsigned int lobby_id, const bool game_over);
 unsigned int create_lobby();
 void add_player_to_lobby(const unsigned int lobby_id,
                          const dpp::slashcommand_t &event);
-void remove_player_from_lobby(const unsigned int lobby_id,
-                              const dpp::snowflake player_id);
 void set_player_choice(const dpp::snowflake player_id,
                        const std::string &choice);
 std::string get_player_choice(const dpp::snowflake player_id);
@@ -95,5 +89,7 @@ bool is_game_complete(const unsigned int lobby_id);
 void send_result_messages(const unsigned int lobby_id,
                           const unsigned int winner, const unsigned int loser,
                           bool draw = false);
+void set_timer(const dpp::snowflake player_id, dpp::timer timer);
+void clear_timer(const dpp::snowflake player_id);
 void handle_game(const dpp::button_click_t &event);
 } // namespace game

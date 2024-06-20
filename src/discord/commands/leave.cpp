@@ -27,7 +27,8 @@ dpp::slashcommand leave_command::register_command(dpp::cluster &bot) {
 }
 
 void leave_command::route(const dpp::slashcommand_t &event) {
-  auto player_lobby_id = game::find_player_lobby_id(event.command.usr.id);
+  unsigned int player_lobby_id =
+      game::find_player_lobby_id(event.command.usr.id);
   if (player_lobby_id == 0) {
     /* Lobby not found */
     event.reply(
@@ -43,6 +44,7 @@ void leave_command::route(const dpp::slashcommand_t &event) {
   }
 
   /* Delete game */
+  game::clear_timer(event.command.usr.id);
   game::remove_lobby_from_queue(player_lobby_id, false);
 
   /* Send confirmation embed */
