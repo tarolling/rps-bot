@@ -95,16 +95,16 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
 }
 
 void on_buttonclick(const dpp::button_click_t &event) {
-  event.reply();
+  // event.reply();
 
-  /* Instance of game */
-  if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
-      event.custom_id == "Scissors") {
-    event.delete_original_response();
+  // /* Instance of game */
+  // if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
+  //     event.custom_id == "Scissors") {
+  //   event.delete_original_response();
 
-    /* Spawn worker so sync methods don't block main event loop */
-    std::thread worker(game::handle_game, std::ref(event));
-    worker.detach();
-  }
+  //   /* Spawn worker so sync methods don't block main event loop */
+  //   std::thread worker(game::handle_game, std::ref(event));
+  //   worker.detach();
+  // }
 }
 } // namespace listeners

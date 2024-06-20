@@ -91,5 +91,5 @@ void send_result_messages(const unsigned int lobby_id,
                           bool draw = false);
 void set_timer(const dpp::snowflake player_id, dpp::timer timer);
 void clear_timer(const dpp::snowflake player_id);
-void handle_game(const dpp::button_click_t &event);
+// void handle_game(const dpp::button_click_t &event);
 } // namespace game

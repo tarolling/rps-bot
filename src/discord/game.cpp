@@ -16,7 +16,7 @@
  *
  ************************************************************************************/
 
-#include "rps/embeds.h"
+#include <dpp/dispatcher.h>
 #include <dpp/exception.h>
 #include <dpp/message.h>
 #include <dpp/misc-enum.h>
@@ -26,8 +26,9 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <rps/button_int_collector.h>
+#include <rps/embeds.h>
 #include <rps/game.h>
-#include <variant>
 
 namespace game {
 
@@ -340,15 +341,33 @@ void send_game_messages(const unsigned int lobby_id) {
         get_player_score(lobby_id, found_lobby.players.back()->player.id);
   }
 
-  for (const auto &player_info : found_lobby.players) {
-    game::clear_timer(player_info->player.id);
-    {
-      std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-      player_info->init_interaction.from->creator->direct_message_create_sync(
-          player_info->player.id,
-          embeds::game(lobby_id, get_game_num(lobby_id), player_one_name,
-                       player_one_score, player_two_name, player_two_score));
-    }
+  /* EXPERIMENT */
+  unsigned int game_num = 0;
+  {
+    std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+    game_num = get_game_num(lobby_id);
+  }
+  button_int_collector *collector = nullptr;
+
+  if (collector == nullptr) {
+    collector = new button_int_collector(
+        found_lobby.players.front()->init_interaction.from->creator, lobby_id,
+        found_lobby.players.front()
+            ->init_interaction.from->creator->direct_message_create_sync(
+                found_lobby.players.front()->player.id,
+                embeds::game(lobby_id, game_num, player_one_name,
+                             player_one_score, player_two_name,
+                             player_two_score)),
+        found_lobby.players.back()
+            ->init_interaction.from->creator->direct_message_create_sync(
+                found_lobby.players.back()->player.id,
+                embeds::game(lobby_id, game_num, player_one_name,
+                             player_one_score, player_two_name,
+                             player_two_score)));
+  }
+
+  for (auto &player_info : found_lobby.players) {
+    clear_timer(player_info->player.id);
   }
 }
 
@@ -411,42 +430,43 @@ void clear_timer(const dpp::snowflake player_id) {
   }
 }
 
-void handle_game(const dpp::button_click_t &event) {
-  /* Find player lobby */
-  unsigned int player_lobby_id =
-      find_player_lobby_id(event.command.get_issuing_user().id);
+// void handle_game(const dpp::button_click_t &event) {
+//   /* Find player lobby */
+//   unsigned int player_lobby_id =
+//       find_player_lobby_id(event.command.get_issuing_user().id);
 
-  /* 1. Go set the choice, then send a confirmation message */
-  set_player_choice(event.command.get_issuing_user().id, event.custom_id);
-  event.from->creator->direct_message_create_sync(
-      event.command.get_issuing_user().id,
-      dpp::message(fmt::format("You selected {}! Waiting for opponent...",
-                               event.custom_id)));
+//   /* 1. Go set the choice, then send a confirmation message */
+//   clear_timer(event.command.get_issuing_user().id);
+//   set_player_choice(event.command.get_issuing_user().id, event.custom_id);
+//   event.from->creator->direct_message_create_sync(
+//       event.command.get_issuing_user().id,
+//       dpp::message(fmt::format("You selected {}! Waiting for opponent...",
+//                                event.custom_id)));
 
-  /* 2. If both choices are selected, determine who won and increment winner
-   */
-  if (check_both_responses(player_lobby_id)) {
-    std::string result = determine_winner(player_lobby_id);
-    if (result == "1") {
-      increment_player_score(player_lobby_id, 1);
-      send_result_messages(player_lobby_id, 1, 2);
-    } else if (result == "2") {
-      increment_player_score(player_lobby_id, 2);
-      send_result_messages(player_lobby_id, 2, 1);
-    } else {
-      send_result_messages(player_lobby_id, 1, 2, true);
-    }
+//   /* 2. If both choices are selected, determine who won and increment winner
+//    */
+//   if (check_both_responses(player_lobby_id)) {
+//     std::string result = determine_winner(player_lobby_id);
+//     if (result == "1") {
+//       increment_player_score(player_lobby_id, 1);
+//       send_result_messages(player_lobby_id, 1, 2);
+//     } else if (result == "2") {
+//       increment_player_score(player_lobby_id, 2);
+//       send_result_messages(player_lobby_id, 2, 1);
+//     } else {
+//       send_result_messages(player_lobby_id, 1, 2, true);
+//     }
 
-    if (is_game_complete(player_lobby_id)) {
-      /* Finish up */
-      remove_lobby_from_queue(player_lobby_id, true);
-    } else {
-      /* Send message */
-      increment_game_num(player_lobby_id);
-      reset_choices(player_lobby_id);
-      send_game_messages(player_lobby_id);
-    }
-  }
-}
+//     if (is_game_complete(player_lobby_id)) {
+//       /* Finish up */
+//       remove_lobby_from_queue(player_lobby_id, true);
+//     } else {
+//       /* Send message */
+//       increment_game_num(player_lobby_id);
+//       reset_choices(player_lobby_id);
+//       send_game_messages(player_lobby_id);
+//     }
+//   }
+// }
 
 } // namespace game

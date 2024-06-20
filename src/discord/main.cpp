@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]) {
 
   if (cli.display_commands) {
     std::cerr << listeners::json_commands(bot) << "\n";
-    exit(EXIT_SUCCESS);
+    exit(0);
   }
 
   bot.set_websocket_protocol(dpp::ws_etf);
@@ -60,5 +60,5 @@ int main(int argc, char const *argv[]) {
   game::init(bot);
 
   /* Start bot */
-  bot.start(dpp::st_wait != 0U);
+  bot.start(dpp::st_wait);
 }
