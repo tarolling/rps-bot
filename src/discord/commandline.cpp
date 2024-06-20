@@ -27,6 +27,7 @@ namespace commandline {
 commandline_config parse(int argc, char const *argv[]) {
 
   struct option long_opts[] = {
+      {"dev", no_argument, nullptr, 'd'},
       {"clusterid", required_argument, nullptr, 'c'},
       {"maxclusters", required_argument, nullptr, 'm'},
       {"showcommands", optional_argument, nullptr, 's'},
@@ -34,7 +35,7 @@ commandline_config parse(int argc, char const *argv[]) {
 
   int index{0};
   int arg;
-  bool clusters_defined{false}, show_commands{false};
+  bool dev_mode{false}, clusters_defined{false}, show_commands{false};
   uint32_t cluster_id{0};
   uint32_t max_clusters{1};
 
@@ -48,6 +49,9 @@ commandline_config parse(int argc, char const *argv[]) {
                                  &index)) != -1) {
     switch (arg) {
     case 0:
+      break;
+    case 'd':
+      dev_mode = true;
       break;
     case 'c':
       /* Cluster id */
@@ -66,7 +70,8 @@ commandline_config parse(int argc, char const *argv[]) {
     default:
       std::cerr << "Unknown parameter '" << argv[optind - 1] << "'\n";
       std::cerr << "Usage: " << argv[0]
-                << " [-clusterid <n>] [-maxclusters <n>]\n\n";
+                << "[-dev] [-clusterid <n>] [-maxclusters <n>]\n\n";
+      std::cerr << "-dev: Run the bot in development mode\n";
       std::cerr << "-clusterid <n>:    The current cluster id to identify for, "
                    "must be set with -maxclusters\n";
       std::cerr << "-maxclusters <n>:  The maximum number of clusters the bot "
@@ -83,7 +88,8 @@ commandline_config parse(int argc, char const *argv[]) {
     exit(2);
   }
 
-  return commandline_config{.cluster_id = cluster_id,
+  return commandline_config{.dev = dev_mode,
+                            .cluster_id = cluster_id,
                             .max_clusters = max_clusters,
                             .display_commands = show_commands};
 }

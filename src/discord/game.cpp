@@ -16,14 +16,18 @@
  *
  ************************************************************************************/
 
+#include "rps/embeds.h"
 #include <dpp/exception.h>
+#include <dpp/message.h>
 #include <dpp/misc-enum.h>
 #include <dpp/snowflake.h>
+#include <dpp/timer.h>
 #include <fmt/format.h>
 #include <list>
 #include <memory>
 #include <mutex>
 #include <rps/game.h>
+#include <variant>
 
 namespace game {
 
@@ -83,30 +87,13 @@ unsigned int find_open_lobby_id() {
   return 0;
 }
 
-unsigned int get_global_lobby_id() {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-  return global_lobby_id;
-}
-
-/**
- * @brief Type here.
- */
-void increment_global_lobby_id() {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-  ++global_lobby_id;
-}
-
-void decrement_global_lobby_id() {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-  --global_lobby_id;
-}
-
 void remove_lobby_from_queue(const unsigned int lobby_id, bool game_over) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+
   if (!game_over) {
-    decrement_global_lobby_id();
+    global_lobby_id--;
   }
 
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (auto it = lobby_queue.begin(); it != lobby_queue.end(); ++it) {
     if (it->id == lobby_id) {
       lobby_queue.erase(it);
@@ -116,11 +103,10 @@ void remove_lobby_from_queue(const unsigned int lobby_id, bool game_over) {
 }
 
 unsigned int create_lobby() {
-  rps_lobby lobby;
-  increment_global_lobby_id();
-  lobby.id = get_global_lobby_id();
-
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+
+  rps_lobby lobby;
+  lobby.id = ++global_lobby_id;
   lobby_queue.push_back(lobby);
   return lobby.id;
 }
@@ -132,24 +118,6 @@ void add_player_to_lobby(const unsigned int lobby_id,
     if (it.id == lobby_id) {
       it.players.emplace_back(
           std::make_shared<player_info>(event.command.usr, event));
-    }
-  }
-}
-
-void remove_player_from_lobby(const unsigned int lobby_id,
-                              const dpp::snowflake player_id) {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-  for (auto &it : lobby_queue) {
-    if (it.id == lobby_id) {
-      auto it_player = std::find_if(
-          it.players.begin(), it.players.end(),
-          [player_id](const std::shared_ptr<player_info> &player_info) {
-            return player_info->player.id == player_id;
-          });
-      if (it_player != it.players.end()) {
-        it.players.erase(it_player);
-      }
-      return;
     }
   }
 }
@@ -208,7 +176,6 @@ rps_lobby get_lobby(const unsigned int lobby_id) {
 
 unsigned int get_player_score(const unsigned int lobby_id,
                               const dpp::snowflake &player_id) {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
       for (const auto &player_info : lobby.players) {
@@ -256,7 +223,6 @@ void increment_player_score(const unsigned int lobby_id,
 }
 
 unsigned int get_game_num(const unsigned int lobby_id) {
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
       return lobby.game_number;
@@ -350,33 +316,38 @@ std::string calculate_winner(const std::string &player_one_choice,
 }
 
 void send_game_messages(const unsigned int lobby_id) {
-  dpp::message msg = dpp::message(
-      fmt::format("Lobby #{} - Game {}", lobby_id, get_game_num(lobby_id)));
-  msg.add_component(
-      dpp::component()
-          .add_component(dpp::component()
-                             .set_type(dpp::component_type::cot_button)
-                             .set_label("Rock")
-                             .set_id("Rock")
-                             .set_style(dpp::component_style::cos_primary))
-          .add_component(dpp::component()
-                             .set_type(dpp::component_type::cot_button)
-                             .set_label("Paper")
-                             .set_id("Paper")
-                             .set_style(dpp::component_style::cos_primary))
-          .add_component(dpp::component()
-                             .set_type(dpp::component_type::cot_button)
-                             .set_label("Scissors")
-                             .set_id("Scissors")
-                             .set_style(dpp::component_style::cos_primary)));
+  rps_lobby found_lobby;
+  std::string player_one_name;
+  unsigned int player_one_score = 0;
+  std::string player_two_name;
+  unsigned int player_two_score = 0;
 
-  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-  for (const auto &lobby : lobby_queue) {
-    if (lobby.id == lobby_id) {
-      for (const auto &player_info : lobby.players) {
-        player_info->init_interaction.from->creator->direct_message_create_sync(
-            player_info->player.id, msg);
+  {
+    std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+
+    for (const auto &lobby : lobby_queue) {
+      if (lobby.id == lobby_id) {
+        found_lobby = lobby;
+        break;
       }
+    }
+
+    player_one_name = found_lobby.players.front()->player.format_username();
+    player_one_score =
+        get_player_score(lobby_id, found_lobby.players.front()->player.id);
+    player_two_name = found_lobby.players.back()->player.format_username();
+    player_two_score =
+        get_player_score(lobby_id, found_lobby.players.back()->player.id);
+  }
+
+  for (const auto &player_info : found_lobby.players) {
+    game::clear_timer(player_info->player.id);
+    {
+      std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+      player_info->init_interaction.from->creator->direct_message_create_sync(
+          player_info->player.id,
+          embeds::game(lobby_id, get_game_num(lobby_id), player_one_name,
+                       player_one_score, player_two_name, player_two_score));
     }
   }
 }
@@ -393,9 +364,14 @@ bool is_game_complete(const unsigned int lobby_id) {
 }
 
 void send_result_messages(const unsigned int lobby_id,
-                          const unsigned int winner, const unsigned int loser) {
+                          const unsigned int winner, const unsigned int loser,
+                          bool draw) {
   dpp::message msg_win = dpp::message("Game win!");
   dpp::message msg_loss = dpp::message("Game loss.");
+  if (draw) {
+    msg_win = dpp::message("Game draw.");
+    msg_loss = dpp::message("Game draw.");
+  }
 
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
@@ -406,6 +382,31 @@ void send_result_messages(const unsigned int lobby_id,
       lobby.players.at(loser - 1)
           ->init_interaction.from->creator->direct_message_create_sync(
               lobby.players.at(loser - 1)->player.id, msg_loss);
+    }
+  }
+}
+
+void set_timer(const dpp::snowflake player_id, dpp::timer timer) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (auto &lobby : lobby_queue) {
+    for (auto &player_info : lobby.players) {
+      if (player_info->player.id == player_id) {
+        player_info->player_timer = timer;
+        return;
+      }
+    }
+  }
+}
+
+void clear_timer(const dpp::snowflake player_id) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (auto &lobby : lobby_queue) {
+    for (auto &player_info : lobby.players) {
+      if (player_info->player.id == player_id) {
+        player_info->init_interaction.from->creator->stop_timer(
+            player_info->player_timer);
+        return;
+      }
     }
   }
 }
@@ -432,6 +433,8 @@ void handle_game(const dpp::button_click_t &event) {
     } else if (result == "2") {
       increment_player_score(player_lobby_id, 2);
       send_result_messages(player_lobby_id, 2, 1);
+    } else {
+      send_result_messages(player_lobby_id, 1, 2, true);
     }
 
     if (is_game_complete(player_lobby_id)) {

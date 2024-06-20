@@ -15,14 +15,14 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include "rps/game.h"
 #include <dpp/misc-enum.h>
 #include <dpp/once.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <malloc.h>
-#include <mutex>
 #include <rps/command.h>
+#include <rps/game.h>
+#include <rps/lang.h>
 #include <rps/listeners.h>
 
 #include <rps/commands/leave.h>
@@ -60,13 +60,16 @@ void on_ready(const dpp::ready_t &event) {
       });
     }
 
-    auto set_presence = [&bot]() {
-      bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_game,
-                                     "Is RPS all luck, or pure skill?"));
+    auto set_presence = [&bot, event]() {
+      bot.set_presence(dpp::presence(
+          dpp::ps_online, dpp::at_game,
+          fmt::format("Is RPS all luck, or pure skill? Competing in {} servers",
+                      event.guild_count)));
     };
 
     bot.start_timer([&bot, set_presence](dpp::timer t) { set_presence(); },
                     240);
+    bot.start_timer([&bot](dpp::timer t) { i18n::check_lang_reload(bot); }, 60);
     bot.start_timer(
         [](dpp::timer t) {
           /* Garbage collect free memory by consolidating free malloc() blocks
@@ -92,10 +95,12 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
 }
 
 void on_buttonclick(const dpp::button_click_t &event) {
+  event.reply();
+
   /* Instance of game */
   if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
       event.custom_id == "Scissors") {
-    event.reply();
+    event.delete_original_response();
 
     /* Spawn worker so sync methods don't block main event loop */
     std::thread worker(game::handle_game, std::ref(event));

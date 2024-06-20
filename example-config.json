@@ -1,6 +1,9 @@
 {
-    "token": "<live bot token>",
+    "live_token": "<live bot token>",
+    "dev_token": "<dev bot token>",
     "log": "<log directory>",
     "shards": 2,
-    "dev": "false"
+    "dev": false,
+    "icon": "<url to bot icon>",
+    "default_queue_time": 5
 }
