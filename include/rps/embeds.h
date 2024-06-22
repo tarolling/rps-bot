@@ -36,7 +36,6 @@ inline dpp::embed_footer footer() {
 };
 
 namespace embeds {
-
 [[nodiscard]] dpp::message queue(const dpp::user &player,
                                  const unsigned int player_count);
 
@@ -46,4 +45,18 @@ namespace embeds {
 game(const unsigned int lobby_id, const unsigned int game_num,
      const std::string &player_one_name, const unsigned int player_one_score,
      const std::string &player_two_name, const unsigned int player_two_score);
+
+[[nodiscard]] dpp::message waiting(const unsigned int game_num,
+                                   const std::string &player_one_name,
+                                   const std::string &player_one_choice,
+                                   const std::string &player_two_name,
+                                   const std::string &player_two_choice);
+
+[[nodiscard]] dpp::message game_result(const unsigned int game_num,
+                                       const std::string &player_one_name,
+                                       const std::string &player_one_choice,
+                                       const std::string &player_two_name,
+                                       const std::string &player_two_choice,
+                                       const std::string &result);
+
 }; // namespace embeds

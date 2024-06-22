@@ -21,6 +21,7 @@
 #include <fmt/format.h>
 #include <malloc.h>
 #include <rps/command.h>
+#include <rps/embeds.h>
 #include <rps/game.h>
 #include <rps/lang.h>
 #include <rps/listeners.h>
@@ -95,16 +96,23 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
 }
 
 void on_buttonclick(const dpp::button_click_t &event) {
-  // event.reply();
+  /* Instance of game */
+  if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
+      event.custom_id == "Scissors") {
+    unsigned int player_lobby_id =
+        game::find_player_lobby_id(event.command.get_issuing_user().id);
+    game::rps_lobby player_lobby = game::get_lobby(player_lobby_id);
+    event.reply();
+    event.edit_original_response(embeds::waiting(
+        game::get_game_num(player_lobby_id),
+        player_lobby.players.front()->player.format_username(),
+        game::get_player_choice(player_lobby.players.front()->player.id),
+        player_lobby.players.back()->player.format_username(),
+        game::get_player_choice(player_lobby.players.back()->player.id)));
 
-  // /* Instance of game */
-  // if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
-  //     event.custom_id == "Scissors") {
-  //   event.delete_original_response();
-
-  //   /* Spawn worker so sync methods don't block main event loop */
-  //   std::thread worker(game::handle_game, std::ref(event));
-  //   worker.detach();
-  // }
+    /* Spawn worker so sync methods don't block main event loop */
+    std::thread worker(game::handle_choice, std::ref(event));
+    worker.detach();
+  }
 }
 } // namespace listeners

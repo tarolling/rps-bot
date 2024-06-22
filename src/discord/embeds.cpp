@@ -88,4 +88,40 @@ dpp::message game(const unsigned int lobby_id, const unsigned int game_num,
                       .set_id("Scissors")
                       .set_style(dpp::component_style::cos_primary)));
 }
+
+dpp::message waiting(const unsigned int game_num,
+                     const std::string &player_one_name,
+                     const std::string &player_one_choice,
+                     const std::string &player_two_name,
+                     const std::string &player_two_choice) {
+  return dpp::message().add_embed(
+      dpp::embed()
+          .set_title("Waiting for opponent...")
+          .set_description(fmt::format("Game {}", game_num))
+          .add_field(player_one_choice.empty() ? "???" : player_one_choice,
+                     player_one_name, true)
+          .add_field(player_two_choice.empty() ? "???" : player_two_choice,
+                     player_two_name, true)
+          .set_footer(footer())
+          .set_color(EMBED_COLOR));
+}
+
+dpp::message game_result(const unsigned int game_num,
+                         const std::string &player_one_name,
+                         const std::string &player_one_choice,
+                         const std::string &player_two_name,
+                         const std::string &player_two_choice,
+                         const std::string &result) {
+  return dpp::message().add_embed(
+      dpp::embed()
+          .set_title(fmt::format("GAME {}", result))
+          .set_description(fmt::format("Game {}", game_num))
+          .add_field(player_one_choice.empty() ? "DNP" : player_one_choice,
+                     player_one_name, true)
+          .add_field(player_two_choice.empty() ? "DNP" : player_two_choice,
+                     player_two_name, true)
+          .set_footer(footer())
+          .set_color(EMBED_COLOR));
+}
+
 }; // namespace embeds

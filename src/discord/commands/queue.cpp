@@ -69,16 +69,22 @@ void queue_command::route(const dpp::slashcommand_t &event) {
     queue_time = std::get<std::int64_t>(event.get_parameter("queue_time"));
   }
 
-  game::set_timer(event.command.usr.id,
-                  event.from->creator->start_timer(
-                      [=](unsigned long t) {
-                        event.from->creator->stop_timer(t);
-                        game::remove_lobby_from_queue(open_lobby_id, false);
-                        event.from->creator->message_create(
-                            embeds::leave(event.command.usr)
-                                .set_channel_id(event.command.channel_id));
-                      },
-                      60 * queue_time));
+  bot->log(dpp::ll_debug, "let me guess...");
+
+  game::start_queue_timer(
+      event.command.usr.id,
+      event.from->creator->start_timer(
+          [&](unsigned long t) {
+            event.from->creator->stop_timer(t);
+            game::remove_lobby_from_queue(open_lobby_id, false);
+            event.from->creator->message_create(
+                embeds::leave(event.command.usr)
+                    .set_channel_id(event.command.channel_id));
+          },
+          60 * queue_time));
+
+  bot->log(dpp::ll_debug, "it's right here");
+
   const unsigned int player_count = game::get_num_players(open_lobby_id);
 
   /* Send confirmation embed */
