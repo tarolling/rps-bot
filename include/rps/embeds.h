@@ -59,4 +59,10 @@ game(const unsigned int lobby_id, const unsigned int game_num,
                                        const std::string &player_two_choice,
                                        const std::string &result);
 
+[[nodiscard]] dpp::message match_result(
+    const unsigned int lobby_id, const unsigned int game_num,
+    const std::string &player_one_name, const unsigned int player_one_score,
+    const std::string &player_two_name, const unsigned int player_two_score,
+    const dpp::user &winner, bool double_afk);
+
 }; // namespace embeds

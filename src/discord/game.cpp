@@ -227,19 +227,18 @@ rps_lobby get_lobby(const unsigned int lobby_id) {
       return lobby;
     }
   }
+  return {};
 }
 
 unsigned int get_player_score(const unsigned int lobby_id,
-                              const dpp::snowflake &player_id) {
+                              const unsigned int index) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
-      for (const auto &player_info : lobby.players) {
-        if (player_info->player.id == player_id) {
-          return player_info->score;
-        }
-      }
+      return lobby.players.at(index)->score;
     }
   }
+  return 0;
 }
 
 /**
@@ -249,13 +248,12 @@ unsigned int get_player_score(const unsigned int lobby_id,
  * @param player_id
  * @return std::shared_ptr<player_info>
  */
-std::shared_ptr<player_info> get_player_info(const dpp::snowflake &player_id) {
+std::shared_ptr<player_info> get_player_info(const unsigned int lobby_id,
+                                             const unsigned int index) {
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
-    for (const auto &player_info : lobby.players) {
-      if (player_info->player.id == player_id) {
-        return player_info;
-      }
+    if (lobby.id == lobby_id) {
+      return lobby.players.at(index);
     }
   }
   return nullptr;
@@ -308,7 +306,7 @@ void increment_player_score(const unsigned int lobby_id,
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
-      lobby.players[player_num - 1]->score++;
+      lobby.players[player_num]->score++;
       return;
     }
   }
@@ -414,6 +412,7 @@ std::string calculate_winner(const std::string &player_one_choice,
       return "D";
     }
   }
+  return "FF";
 }
 
 /**
@@ -425,29 +424,23 @@ std::string calculate_winner(const std::string &player_one_choice,
  * @return std::string
  */
 std::string get_player_name(const unsigned int lobby_id,
-                            const unsigned int player_index) {
+                            const unsigned int index) {
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
-      return lobby.players.at(player_index)->player.format_username();
+      return lobby.players.at(index)->player.format_username();
     }
   }
   return "";
 }
 
 void send_game_messages(const unsigned int lobby_id) {
-  creator->log(dpp::ll_debug, "HEY WE MADE IT MOTHERFUCKA");
-  rps_lobby found_lobby;
-  unsigned int game_num = 0;
-
-  {
-    std::shared_lock<std::shared_mutex> game_lock(game_mutex);
-
-    found_lobby = get_lobby(lobby_id);
-    game_num = get_game_num(lobby_id);
+  rps_lobby found_lobby = get_lobby(lobby_id);
+  if (found_lobby.id == 0) {
+    creator->log(dpp::ll_critical, "Could not find lobby");
+    return;
   }
-
-  creator->log(dpp::ll_debug, "OTHERFUCKA what");
+  unsigned int game_num = get_game_num(lobby_id);
 
   if (game_num == 1) {
     for (auto &player_info : found_lobby.players) {
@@ -456,37 +449,23 @@ void send_game_messages(const unsigned int lobby_id) {
   }
 
   std::string player_one_name = get_player_name(lobby_id, 0);
-  unsigned int player_one_score = 0;
-  dpp::snowflake player_one_id = get_player_id(lobby_id, 0);
+  unsigned int player_one_score = get_player_score(lobby_id, 0);
   std::string player_two_name = get_player_name(lobby_id, 1);
-  unsigned int player_two_score = 0;
-  dpp::snowflake player_two_id = get_player_id(lobby_id, 1);
+  unsigned int player_two_score = get_player_score(lobby_id, 1);
 
-  creator->log(dpp::ll_debug, "what about here?");
-
-  {
-    std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-    player_one_score = get_player_score(lobby_id, player_one_id);
-    player_two_score = get_player_score(lobby_id, player_two_id);
-  }
-
-  creator->log(dpp::ll_debug, "got here, any lock?");
+  start_game_timer(lobby_id, creator->start_timer(
+                                 [=](unsigned long t) {
+                                   handle_timeout(lobby_id);
+                                   creator->stop_timer(t);
+                                 },
+                                 GAME_TIMEOUT));
 
   for (const auto &player_info : found_lobby.players) {
-    start_game_timer(player_info->player.id,
-                     creator->start_timer(
-                         [=](unsigned long t) {
-                           creator->stop_timer(t);
-                           handle_timeout(player_info->player.id);
-                         },
-                         GAME_TIMEOUT));
     creator->direct_message_create(
         player_info->player.id,
-        embeds::game(lobby_id, get_game_num(lobby_id), player_one_name,
-                     player_one_score, player_two_name, player_two_score));
+        embeds::game(lobby_id, game_num, player_one_name, player_one_score,
+                     player_two_name, player_two_score));
   }
-
-  creator->log(dpp::ll_debug, "we got here which is baffling");
 }
 
 bool is_game_complete(const unsigned int lobby_id) {
@@ -503,31 +482,29 @@ bool is_game_complete(const unsigned int lobby_id) {
 void send_result_messages(const unsigned int lobby_id,
                           const unsigned int winner, const unsigned int loser,
                           bool draw) {
+  unsigned int game_num = get_game_num(lobby_id);
+  std::string player_one_name = get_player_name(lobby_id, 0);
+  std::string player_one_choice = get_player_choice(get_player_id(lobby_id, 0));
+  std::string player_two_name = get_player_name(lobby_id, 1);
+  std::string player_two_choice = get_player_choice(get_player_id(lobby_id, 1));
+
   dpp::message msg_win =
-      embeds::game_result(get_game_num(lobby_id), get_player_name(lobby_id, 0),
-                          get_player_choice(get_player_id(lobby_id, 0)),
-                          get_player_name(lobby_id, 1),
-                          get_player_choice(get_player_id(lobby_id, 1)), "WIN");
-  dpp::message msg_loss = embeds::game_result(
-      get_game_num(lobby_id), get_player_name(lobby_id, 0),
-      get_player_choice(get_player_id(lobby_id, 0)),
-      get_player_name(lobby_id, 1),
-      get_player_choice(get_player_id(lobby_id, 1)), "LOSS");
+      embeds::game_result(game_num, player_one_name, player_one_choice,
+                          player_two_name, player_two_choice, "WIN");
+  dpp::message msg_loss =
+      embeds::game_result(game_num, player_one_name, player_one_choice,
+                          player_two_name, player_two_choice, "LOSS");
   if (draw) {
-    msg_win = embeds::game_result(
-        get_game_num(lobby_id), get_player_name(lobby_id, 0),
-        get_player_choice(get_player_id(lobby_id, 0)),
-        get_player_name(lobby_id, 1),
-        get_player_choice(get_player_id(lobby_id, 1)), "DRAW");
-    msg_loss = embeds::game_result(
-        get_game_num(lobby_id), get_player_name(lobby_id, 0),
-        get_player_choice(get_player_id(lobby_id, 0)),
-        get_player_name(lobby_id, 1),
-        get_player_choice(get_player_id(lobby_id, 1)), "DRAW");
+    msg_win = embeds::game_result(game_num, player_one_name, player_one_choice,
+                                  player_two_name, player_two_choice, "DRAW");
+    msg_loss = embeds::game_result(game_num, player_one_name, player_one_choice,
+                                   player_two_name, player_two_choice, "DRAW");
   }
 
-  creator->direct_message_create(get_player_id(lobby_id, winner - 1), msg_win);
-  creator->direct_message_create(get_player_id(lobby_id, loser - 1), msg_loss);
+  /* These need to be sent before the next game message is sent, so we make them
+   * synchronous */
+  creator->direct_message_create_sync(get_player_id(lobby_id, winner), msg_win);
+  creator->direct_message_create_sync(get_player_id(lobby_id, loser), msg_loss);
 }
 
 /**
@@ -565,9 +542,46 @@ void clear_queue_timer(const dpp::snowflake player_id) {
   }
 }
 
-void start_game_timer(const unsigned int lobby_id, dpp::timer timer) {}
+/**
+ * @brief PROTECTED
+ *
+ * @param lobby_id
+ * @param timer
+ */
+void start_game_timer(const unsigned int lobby_id, dpp::timer timer) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      lobby.game_timer = timer;
+      return;
+    }
+  }
+}
 
-void clear_game_timer(const unsigned int lobby_id) {}
+/**
+ * @brief PROTECTED
+ *
+ * @param lobby_id
+ */
+void clear_game_timer(const unsigned int lobby_id) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      creator->stop_timer(lobby.game_timer);
+      return;
+    }
+  }
+}
+
+void send_match_results(const unsigned int lobby_id, const dpp::user &winner,
+                        bool double_afk = false) {
+  dpp::message msg = embeds::match_result(
+      lobby_id, get_game_num(lobby_id), get_player_name(lobby_id, 0),
+      get_player_score(lobby_id, 0), get_player_name(lobby_id, 1),
+      get_player_score(lobby_id, 1), winner, double_afk);
+  creator->direct_message_create(get_player_id(lobby_id, 0), msg);
+  creator->direct_message_create(get_player_id(lobby_id, 1), msg);
+}
 
 void handle_choice(const dpp::button_click_t &event) {
   /* Find player lobby */
@@ -587,19 +601,24 @@ void handle_choice(const dpp::button_click_t &event) {
   /* 2. If both choices are selected, determine who won and increment winner
    */
   if (check_both_responses(player_lobby_id)) {
+    clear_game_timer(player_lobby_id);
     std::string result = determine_winner(player_lobby_id);
+    dpp::user winner;
     if (result == "1") {
-      increment_player_score(player_lobby_id, 1);
-      send_result_messages(player_lobby_id, 1, 2);
+      winner = get_player_info(player_lobby_id, 0)->player;
+      increment_player_score(player_lobby_id, 0);
+      send_result_messages(player_lobby_id, 0, 1);
     } else if (result == "2") {
-      increment_player_score(player_lobby_id, 2);
-      send_result_messages(player_lobby_id, 2, 1);
-    } else {
-      send_result_messages(player_lobby_id, 1, 2, true);
+      winner = get_player_info(player_lobby_id, 1)->player;
+      increment_player_score(player_lobby_id, 1);
+      send_result_messages(player_lobby_id, 1, 0);
+    } else if (result == "D") {
+      send_result_messages(player_lobby_id, 0, 1, true);
     }
 
     if (is_game_complete(player_lobby_id)) {
       /* Finish up */
+      send_match_results(player_lobby_id, winner);
       remove_lobby_from_queue(player_lobby_id, true);
     } else {
       /* Send message */
@@ -611,6 +630,19 @@ void handle_choice(const dpp::button_click_t &event) {
 }
 
 void handle_timeout(const unsigned int lobby_id) {
-  creator->log(dpp::ll_debug, "uhmmmm someone timed out :(");
+  std::string result = determine_winner(lobby_id);
+  dpp::user winner;
+  if (result == "1") {
+    increment_player_score(lobby_id, 0);
+    send_match_results(lobby_id, get_player_info(lobby_id, 0)->player);
+  } else if (result == "2") {
+    increment_player_score(lobby_id, 1);
+    send_match_results(lobby_id, get_player_info(lobby_id, 1)->player);
+  } else if (result == "FF") {
+    send_match_results(lobby_id, winner, true);
+  }
+
+  remove_lobby_from_queue(lobby_id, true);
 }
+
 } // namespace game

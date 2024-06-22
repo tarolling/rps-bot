@@ -68,8 +68,7 @@ void on_ready(const dpp::ready_t &event) {
                       event.guild_count)));
     };
 
-    bot.start_timer([&bot, set_presence](dpp::timer t) { set_presence(); },
-                    240);
+    bot.start_timer([set_presence](dpp::timer t) { set_presence(); }, 240);
     bot.start_timer([&bot](dpp::timer t) { i18n::check_lang_reload(bot); }, 60);
     bot.start_timer(
         [](dpp::timer t) {
@@ -105,9 +104,9 @@ void on_buttonclick(const dpp::button_click_t &event) {
     event.reply();
     event.edit_original_response(embeds::waiting(
         game::get_game_num(player_lobby_id),
-        player_lobby.players.front()->player.format_username(),
+        game::get_player_name(player_lobby_id, 0),
         game::get_player_choice(player_lobby.players.front()->player.id),
-        player_lobby.players.back()->player.format_username(),
+        game::get_player_name(player_lobby_id, 1),
         game::get_player_choice(player_lobby.players.back()->player.id)));
 
     /* Spawn worker so sync methods don't block main event loop */

@@ -78,7 +78,8 @@ void set_player_choice(const dpp::snowflake player_id,
 std::string get_player_choice(const dpp::snowflake player_id);
 unsigned int get_num_players(const unsigned int lobby_id);
 rps_lobby get_lobby(const unsigned int lobby_id);
-std::shared_ptr<player_info> get_player_info(const dpp::snowflake player_id);
+std::shared_ptr<player_info> get_player_info(const unsigned int lobby_id,
+                                             const unsigned int index);
 dpp::snowflake get_player_id(const unsigned int lobby_id,
                              const unsigned int player_index);
 void reset_choices(const unsigned int lobby_id);
@@ -91,7 +92,7 @@ std::string determine_winner(const unsigned int lobby_id);
 std::string calculate_winner(const std::string &player_one_choice,
                              const std::string &player_two_choice);
 std::string get_player_name(const unsigned int lobby_id,
-                            const unsigned int player_index);
+                            const unsigned int index);
 void send_game_messages(const unsigned int lobby_id);
 bool is_game_complete(const unsigned int lobby_id);
 void send_result_messages(const unsigned int lobby_id,
