@@ -69,16 +69,18 @@ void queue_command::route(const dpp::slashcommand_t &event) {
     queue_time = std::get<std::int64_t>(event.get_parameter("queue_time"));
   }
 
-  game::set_timer(event.command.usr.id,
-                  event.from->creator->start_timer(
-                      [=](unsigned long t) {
-                        event.from->creator->stop_timer(t);
-                        game::remove_lobby_from_queue(open_lobby_id, false);
-                        event.from->creator->message_create(
-                            embeds::leave(event.command.usr)
-                                .set_channel_id(event.command.channel_id));
-                      },
-                      60 * queue_time));
+  game::start_queue_timer(
+      event.command.usr.id,
+      event.from->creator->start_timer(
+          [&](unsigned long t) {
+            game::remove_lobby_from_queue(open_lobby_id, false);
+            event.from->creator->message_create(
+                embeds::leave(event.command.usr)
+                    .set_channel_id(event.command.channel_id));
+            event.from->creator->stop_timer(t);
+          },
+          60 * queue_time));
+
   const unsigned int player_count = game::get_num_players(open_lobby_id);
 
   /* Send confirmation embed */
@@ -86,6 +88,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
 
   if (player_count == 2) {
     bot->log(dpp::ll_debug, fmt::format("Lobby {} started!", open_lobby_id));
-    game::send_game_messages(open_lobby_id);
+    std::thread worker(game::send_game_messages, open_lobby_id);
+    worker.detach();
   }
 }

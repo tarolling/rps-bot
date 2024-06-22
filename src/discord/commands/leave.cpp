@@ -44,7 +44,7 @@ void leave_command::route(const dpp::slashcommand_t &event) {
   }
 
   /* Delete game */
-  game::clear_timer(event.command.usr.id);
+  game::clear_queue_timer(event.command.usr.id);
   game::remove_lobby_from_queue(player_lobby_id, false);
 
   /* Send confirmation embed */
