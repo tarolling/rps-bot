@@ -33,6 +33,7 @@ struct player_info {
   dpp::user player;
   dpp::slashcommand_t init_interaction;
   dpp::timer queue_timer{};
+  std::shared_ptr<dpp::message> game_message;
   std::string choice;
   unsigned int score{0};
 
@@ -91,6 +92,10 @@ bool check_both_responses(const unsigned int lobby_id);
 std::string determine_winner(const unsigned int lobby_id);
 std::string calculate_winner(const std::string &player_one_choice,
                              const std::string &player_two_choice);
+void set_player_message(const unsigned int lobby_id, const unsigned int index,
+                        const dpp::message &message);
+std::shared_ptr<dpp::message> get_player_message(const unsigned int lobby_id,
+                                                 const unsigned int index);
 std::string get_player_name(const unsigned int lobby_id,
                             const unsigned int index);
 void send_game_messages(const unsigned int lobby_id);
