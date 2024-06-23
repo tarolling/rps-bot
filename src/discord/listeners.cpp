@@ -95,19 +95,19 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
 }
 
 void on_buttonclick(const dpp::button_click_t &event) {
+  event.reply();
+
   /* Instance of game */
   if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
       event.custom_id == "Scissors") {
     unsigned int player_lobby_id =
         game::find_player_lobby_id(event.command.get_issuing_user().id);
-    game::rps_lobby player_lobby = game::get_lobby(player_lobby_id);
-    event.reply();
-    event.edit_original_response(dpp::message().add_embed(embeds::waiting(
-        game::get_game_num(player_lobby_id),
-        game::get_player_name(player_lobby_id, 0),
-        game::get_player_choice(player_lobby.players.front()->player.id),
-        game::get_player_name(player_lobby_id, 1),
-        game::get_player_choice(player_lobby.players.back()->player.id))));
+    if (player_lobby_id == 0) {
+      event.from->creator->log(
+          dpp::ll_error,
+          fmt::format("Unable to find lobby ID for {}", event.raw_event));
+      return;
+    }
 
     /* Spawn worker so sync methods don't block main event loop */
     std::thread worker(game::handle_choice, std::ref(event));
