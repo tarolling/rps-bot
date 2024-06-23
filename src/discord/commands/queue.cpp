@@ -72,10 +72,11 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   game::start_queue_timer(
       event.command.usr.id,
       event.from->creator->start_timer(
-          [&](unsigned long t) {
+          [=](unsigned long t) {
             game::remove_lobby_from_queue(open_lobby_id, false);
             event.from->creator->message_create(
-                embeds::leave(event.command.usr)
+                dpp::message()
+                    .add_embed(embeds::leave(event.command.usr))
                     .set_channel_id(event.command.channel_id));
             event.from->creator->stop_timer(t);
           },
@@ -84,7 +85,8 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   const unsigned int player_count = game::get_num_players(open_lobby_id);
 
   /* Send confirmation embed */
-  event.reply(embeds::queue(event.command.usr, player_count));
+  event.reply(
+      dpp::message().add_embed(embeds::queue(event.command.usr, player_count)));
 
   if (player_count == 2) {
     bot->log(dpp::ll_debug, fmt::format("Lobby {} started!", open_lobby_id));
