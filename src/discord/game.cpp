@@ -106,7 +106,6 @@ unsigned int find_open_lobby_id() {
  */
 void remove_lobby_from_queue(const unsigned int lobby_id, bool game_over) {
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
-  creator->log(dpp::ll_debug, fmt::format("lobby id: {}", lobby_id));
 
   if (!game_over) {
     global_lobby_id--;
@@ -520,25 +519,6 @@ void send_game_messages(const unsigned int lobby_id) {
                        player_two_name, player_two_score);
       player_message->components[0] = embeds::game_buttons();
       creator->message_edit(*player_message);
-      // creator->message_get(
-      //     player_message->id, player_message->channel_id,
-      //     [=](const dpp::confirmation_callback_t &callback) {
-      //       if (callback.is_error()) {
-      //         creator->log(
-      //             dpp::ll_error,
-      //             fmt::format(
-      //                 "Error in editing message for player {} - lobby {}",
-      //                 i + 1, lobby_id));
-      //         return;
-      //       }
-
-      //       auto message = callback.get<dpp::message>();
-      //       message = embeds::game(lobby_id, game_num, player_one_name,
-      //                              player_one_score, player_two_name,
-      //                              player_two_score);
-      //       creator->message_edit(message);
-      //       set_player_message(lobby_id, i, message);
-      //     });
     }
   }
 }
@@ -580,6 +560,12 @@ void send_result_messages(const unsigned int lobby_id,
 
   /* These need to be sent before the next game message is sent, so we make
    * them synchronous */
+  for (unsigned long i = 0; i < get_num_players(lobby_id); ++i) {
+    auto player_message = get_player_message(lobby_id, i);
+    player_message->embeds[0].add_field(player_one_name, player_one_choice);
+    player_message->components[0] = embeds::game_buttons();
+    creator->message_edit(*player_message);
+  }
   creator->direct_message_create_sync(get_player_id(lobby_id, winner), msg_win);
   creator->direct_message_create_sync(get_player_id(lobby_id, loser), msg_loss);
 }
