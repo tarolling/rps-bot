@@ -117,19 +117,15 @@ dpp::embed game_result(const unsigned int game_num,
       .set_color(EMBED_COLOR);
 }
 
-dpp::embed match_result(const unsigned int lobby_id,
-                        const unsigned int game_num,
-                        const std::string &player_one_name,
-                        const unsigned int player_one_score,
-                        const std::string &player_two_name,
-                        const unsigned int player_two_score,
-                        const dpp::user &winner, bool double_afk) {
+dpp::embed match_results(const unsigned int lobby_id,
+                         const unsigned int game_num,
+                         const std::string &player_one_name,
+                         const unsigned int player_one_score,
+                         const std::string &player_two_name,
+                         const unsigned int player_two_score) {
   return dpp::embed()
-      .set_title(fmt::format("Lobby {} Results", lobby_id))
+      .set_title(fmt::format("Lobby #{} Results", lobby_id))
       .set_description(fmt::format("**Games Played:** {}", game_num))
-      .add_field(fmt::format("{}", player_one_score), player_one_name, true)
-      .add_field(fmt::format("{}", player_two_score), player_two_name, true)
-      .set_thumbnail(double_afk ? "" : winner.get_avatar_url(AVATAR_SIZE))
       .set_footer(footer())
       .set_color(EMBED_COLOR);
 }
