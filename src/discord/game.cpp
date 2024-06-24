@@ -605,8 +605,8 @@ void send_game_messages(const unsigned int lobby_id) {
       player_game_message->embeds[0] =
           embeds::game(lobby_id, game_num, player_one_name, player_one_score,
                        player_two_name, player_two_score);
-      player_message->components[0] = embeds::game_buttons();
-      creator->message_edit(*player_message);
+      player_game_message->components[0] = embeds::game_buttons();
+      creator->message_edit(*player_game_message);
       // creator->message_get(
       //     player_message->id, player_message->channel_id,
       //     [=](const dpp::confirmation_callback_t &callback) {
