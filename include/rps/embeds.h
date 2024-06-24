@@ -36,36 +36,33 @@ inline dpp::embed_footer footer() {
 };
 
 namespace embeds {
-[[nodiscard]] dpp::embed queue(const dpp::user &player,
-                               const unsigned int player_count);
+[[nodiscard]] dpp::message queue(const dpp::user &player,
+                                 const unsigned int player_count);
 
-[[nodiscard]] dpp::embed leave(const dpp::user &player);
+[[nodiscard]] dpp::message leave(const dpp::user &player);
 
-[[nodiscard]] dpp::embed
+[[nodiscard]] dpp::message
 game(const unsigned int lobby_id, const unsigned int game_num,
      const std::string &player_one_name, const unsigned int player_one_score,
      const std::string &player_two_name, const unsigned int player_two_score);
 
-dpp::component game_buttons();
+[[nodiscard]] dpp::message waiting(const unsigned int game_num,
+                                   const std::string &player_one_name,
+                                   const std::string &player_one_choice,
+                                   const std::string &player_two_name,
+                                   const std::string &player_two_choice);
 
-[[nodiscard]] dpp::embed waiting(const unsigned int game_num,
-                                 const std::string &player_one_name,
-                                 const std::string &player_one_choice,
-                                 const std::string &player_two_name,
-                                 const std::string &player_two_choice);
-
-[[nodiscard]] dpp::embed game_result(const unsigned int game_num,
-                                     const std::string &player_one_name,
-                                     const std::string &player_one_choice,
-                                     const std::string &player_two_name,
-                                     const std::string &player_two_choice,
-                                     const std::string &result);
-
-[[nodiscard]] dpp::embed match_results(const unsigned int lobby_id,
-                                       const unsigned int game_num,
+[[nodiscard]] dpp::message game_result(const unsigned int game_num,
                                        const std::string &player_one_name,
-                                       const unsigned int player_one_score,
+                                       const std::string &player_one_choice,
                                        const std::string &player_two_name,
-                                       const unsigned int player_two_score);
+                                       const std::string &player_two_choice,
+                                       const std::string &result);
+
+[[nodiscard]] dpp::message match_result(
+    const unsigned int lobby_id, const unsigned int game_num,
+    const std::string &player_one_name, const unsigned int player_one_score,
+    const std::string &player_two_name, const unsigned int player_two_score,
+    const dpp::user &winner, bool double_afk);
 
 }; // namespace embeds
