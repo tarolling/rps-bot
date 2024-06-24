@@ -48,5 +48,5 @@ void leave_command::route(const dpp::slashcommand_t &event) {
   game::remove_lobby_from_queue(player_lobby_id, false);
 
   /* Send confirmation embed */
-  event.reply(dpp::message().add_embed(embeds::leave(event.command.usr)));
+  event.reply(embeds::leave(event.command.usr));
 }

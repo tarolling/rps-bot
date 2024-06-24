@@ -72,7 +72,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   game::start_queue_timer(
       event.command.usr.id,
       event.from->creator->start_timer(
-          [&](unsigned long t) {
+          [=](unsigned long t) {
             game::remove_lobby_from_queue(open_lobby_id, false);
             event.from->creator->message_create(
                 embeds::leave(event.command.usr)
