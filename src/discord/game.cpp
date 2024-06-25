@@ -508,6 +508,25 @@ void send_result_messages(const unsigned int lobby_id,
 }
 
 /**
+ * @brief Get the player interaction object
+ *
+ * PROTECTED
+ * @param lobby_id
+ * @param index
+ * @return dpp::slashcommand_t
+ */
+dpp::slashcommand_t get_player_interaction(const unsigned int lobby_id,
+                                           const unsigned int index) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (const auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      return lobby.players[index]->init_interaction;
+    }
+  }
+  return {};
+}
+
+/**
  * @brief PROTECTED
  *
  * @param player_id
@@ -581,6 +600,49 @@ void send_match_results(const unsigned int lobby_id, const dpp::user &winner,
       get_player_score(lobby_id, 1), winner, double_afk);
   creator->direct_message_create(get_player_id(lobby_id, 0), msg);
   creator->direct_message_create(get_player_id(lobby_id, 1), msg);
+
+  creator->log(dpp::ll_debug, "we here");
+
+  /* Send results in channels that players queued in */
+  dpp::slashcommand_t player_one_interaction =
+      get_player_interaction(lobby_id, 0);
+  dpp::slashcommand_t player_two_interaction =
+      get_player_interaction(lobby_id, 1);
+
+  creator->log(dpp::ll_debug, "we also here");
+
+  /* Both of them were in DMs, so no work needed */
+  if (player_one_interaction.command.guild_id.empty())
+    if ((player_one_interaction.command.guild_id.empty() ||
+         player_one_interaction.command.guild_id == 0) &&
+        player_two_interaction.command.guild_id == 0) {
+      return;
+    }
+
+  /* Just send one if they are the same */
+  if (player_one_interaction.command.channel_id ==
+      player_two_interaction.command.channel_id) {
+    creator->message_create(
+        msg.set_guild_id(player_one_interaction.command.guild_id)
+            .set_channel_id(player_one_interaction.command.channel_id));
+    return;
+  }
+
+  if (!player_one_interaction.command.guild_id.empty() &&
+      player_one_interaction.command.guild_id != 0) {
+    creator->message_create(
+        msg.set_guild_id(player_one_interaction.command.guild_id)
+            .set_channel_id(player_one_interaction.command.channel_id));
+    return;
+  }
+
+  if (!player_two_interaction.command.guild_id.empty() &&
+      player_two_interaction.command.guild_id != 0) {
+    creator->message_create(
+        msg.set_guild_id(player_two_interaction.command.guild_id)
+            .set_channel_id(player_two_interaction.command.message_id));
+    return;
+  }
 }
 
 void handle_choice(const dpp::button_click_t &event) {

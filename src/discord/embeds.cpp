@@ -27,16 +27,18 @@ using namespace i18n;
 namespace embeds {
 dpp::message queue(const dpp::user &player, const unsigned int player_count) {
   std::string adjustment = (player_count == 1) ? " is" : "s are";
-  return dpp::embed()
-      .set_title(
-          fmt::format("{} player{} in the queue", player_count, adjustment))
-      .add_field("Want to join?",
-                 "Type `/queue` or `!queue` to join this lobby!")
-      .set_description(
-          fmt::format("**{}** has joined.", player.format_username()))
-      .set_thumbnail(player.get_avatar_url(AVATAR_SIZE))
-      .set_footer(footer())
-      .set_color(EMBED_COLOR);
+  dpp::embed embed = dpp::embed()
+                         .set_title(fmt::format("{} player{} in the queue",
+                                                player_count, adjustment))
+                         .set_description(fmt::format("**{}** has joined.",
+                                                      player.format_username()))
+                         .set_thumbnail(player.get_avatar_url(AVATAR_SIZE))
+                         .set_footer(footer())
+                         .set_color(EMBED_COLOR);
+  return (player_count == 1)
+             ? embed.add_field("Want to join?",
+                               "Type `/queue` or `!queue` to join this lobby!")
+             : embed;
 }
 
 dpp::message leave(const dpp::user &player) {
@@ -132,7 +134,7 @@ dpp::message match_result(const unsigned int lobby_id,
                           const dpp::user &winner, bool double_afk) {
   return dpp::message().add_embed(
       dpp::embed()
-          .set_title(fmt::format("Lobby {} Results", lobby_id))
+          .set_title(fmt::format("Lobby #{} Results", lobby_id))
           .set_description(fmt::format("**Games Played:** {}", game_num))
           .add_field(fmt::format("{}", player_one_score), player_one_name, true)
           .add_field(fmt::format("{}", player_two_score), player_two_name, true)
