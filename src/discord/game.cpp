@@ -485,8 +485,10 @@ void send_result_messages(const unsigned int lobby_id,
   unsigned int game_num = get_game_num(lobby_id);
   std::string player_one_name = get_player_name(lobby_id, 0);
   std::string player_one_choice = get_player_choice(get_player_id(lobby_id, 0));
+  unsigned int player_one_score = get_player_score(lobby_id, 0);
   std::string player_two_name = get_player_name(lobby_id, 1);
   std::string player_two_choice = get_player_choice(get_player_id(lobby_id, 1));
+  unsigned int player_two_score = get_player_score(lobby_id, 1);
 
   dpp::message msg_win =
       embeds::game_result(game_num, player_one_name, player_one_choice,
@@ -505,6 +507,79 @@ void send_result_messages(const unsigned int lobby_id,
    * synchronous */
   creator->direct_message_create_sync(get_player_id(lobby_id, winner), msg_win);
   creator->direct_message_create_sync(get_player_id(lobby_id, loser), msg_loss);
+
+  /* Hack to set player emoji */
+  std::string player_one_emoji_choice =
+      (player_one_choice == "Rock")
+          ? ":rock:"
+          : ((player_one_choice == "Paper") ? ":page_facing_up:"
+                                            : ":scissors:");
+  std::string player_two_emoji_choice =
+      (player_two_choice == "Rock")
+          ? ":rock:"
+          : ((player_two_choice == "Paper") ? ":page_facing_up:"
+                                            : ":scissors:");
+
+  /* Create normal text message for result (may have a higher rate limit?) */
+  dpp::message result_msg;
+  if (draw) {
+    result_msg = dpp::message(fmt::format(
+        "__**Lobby #{} - Game {}**__\n{}  {}  {}  |  {}  {}  {}", lobby_id,
+        game_num, player_one_name, player_one_emoji_choice, player_one_score,
+        player_two_score, player_two_emoji_choice, player_two_name));
+  } else {
+    /* Determine which name + score to bold */
+    if (winner == 0) {
+      result_msg = dpp::message(fmt::format(
+          "__**Lobby #{} - Game {}**__\n**{}**  {}  **{}**  |  {}  {}  {}",
+          lobby_id, game_num, player_one_name, player_one_emoji_choice,
+          player_one_score, player_two_score, player_two_emoji_choice,
+          player_two_name));
+    } else {
+      result_msg = dpp::message(fmt::format(
+          "__**Lobby #{} - Game {}**__\n{}  {}  {}  |  **{}**  {}  **{}**",
+          lobby_id, game_num, player_one_name, player_one_emoji_choice,
+          player_one_score, player_two_score, player_two_emoji_choice,
+          player_two_name));
+    }
+  }
+
+  /* Send results in channels that players queued in */
+  dpp::slashcommand_t player_one_interaction =
+      get_player_interaction(lobby_id, 0);
+  dpp::slashcommand_t player_two_interaction =
+      get_player_interaction(lobby_id, 1);
+
+  /* Both of them were in DMs, so no work needed */
+  if ((player_one_interaction.command.guild_id.empty() ||
+       player_one_interaction.command.guild_id == 0) &&
+      (player_two_interaction.command.guild_id.empty() ||
+       player_two_interaction.command.guild_id == 0)) {
+    return;
+  }
+
+  /* Just send one if they are the same */
+  if (player_one_interaction.command.channel_id ==
+      player_two_interaction.command.channel_id) {
+    creator->message_create(
+        result_msg.set_guild_id(player_one_interaction.command.guild_id)
+            .set_channel_id(player_one_interaction.command.channel_id));
+    return;
+  }
+
+  if (!player_one_interaction.command.guild_id.empty() &&
+      player_one_interaction.command.guild_id != 0) {
+    creator->message_create(
+        result_msg.set_guild_id(player_one_interaction.command.guild_id)
+            .set_channel_id(player_one_interaction.command.channel_id));
+  }
+
+  if (!player_two_interaction.command.guild_id.empty() &&
+      player_two_interaction.command.guild_id != 0) {
+    creator->message_create(
+        result_msg.set_guild_id(player_two_interaction.command.guild_id)
+            .set_channel_id(player_two_interaction.command.message_id));
+  }
 }
 
 /**
@@ -601,23 +676,19 @@ void send_match_results(const unsigned int lobby_id, const dpp::user &winner,
   creator->direct_message_create(get_player_id(lobby_id, 0), msg);
   creator->direct_message_create(get_player_id(lobby_id, 1), msg);
 
-  creator->log(dpp::ll_debug, "we here");
-
   /* Send results in channels that players queued in */
   dpp::slashcommand_t player_one_interaction =
       get_player_interaction(lobby_id, 0);
   dpp::slashcommand_t player_two_interaction =
       get_player_interaction(lobby_id, 1);
 
-  creator->log(dpp::ll_debug, "we also here");
-
   /* Both of them were in DMs, so no work needed */
-  if (player_one_interaction.command.guild_id.empty())
-    if ((player_one_interaction.command.guild_id.empty() ||
-         player_one_interaction.command.guild_id == 0) &&
-        player_two_interaction.command.guild_id == 0) {
-      return;
-    }
+  if ((player_one_interaction.command.guild_id.empty() ||
+       player_one_interaction.command.guild_id == 0) &&
+      (player_two_interaction.command.guild_id.empty() ||
+       player_two_interaction.command.guild_id == 0)) {
+    return;
+  }
 
   /* Just send one if they are the same */
   if (player_one_interaction.command.channel_id ==
