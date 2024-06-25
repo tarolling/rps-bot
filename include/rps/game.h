@@ -98,6 +98,8 @@ bool is_game_complete(const unsigned int lobby_id);
 void send_result_messages(const unsigned int lobby_id,
                           const unsigned int winner, const unsigned int loser,
                           bool draw = false);
+dpp::slashcommand_t get_player_interaction(const unsigned int lobby_id,
+                                           const unsigned int index);
 void start_queue_timer(const dpp::snowflake player_id, dpp::timer timer);
 void clear_queue_timer(const dpp::snowflake player_id);
 void start_game_timer(const unsigned int lobby_id, dpp::timer timer);
