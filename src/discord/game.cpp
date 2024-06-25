@@ -601,15 +601,11 @@ void send_match_results(const unsigned int lobby_id, const dpp::user &winner,
   creator->direct_message_create(get_player_id(lobby_id, 0), msg);
   creator->direct_message_create(get_player_id(lobby_id, 1), msg);
 
-  creator->log(dpp::ll_debug, "we here");
-
   /* Send results in channels that players queued in */
   dpp::slashcommand_t player_one_interaction =
       get_player_interaction(lobby_id, 0);
   dpp::slashcommand_t player_two_interaction =
       get_player_interaction(lobby_id, 1);
-
-  creator->log(dpp::ll_debug, "we also here");
 
   /* Both of them were in DMs, so no work needed */
   if (player_one_interaction.command.guild_id.empty())
