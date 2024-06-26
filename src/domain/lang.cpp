@@ -17,8 +17,8 @@
  ************************************************************************************/
 #include <dpp/dpp.h>
 #include <fmt/format.h>
-#include <rps/lang.h>
-#include <rps/rps.h>
+#include <rps/domain/lang.h>
+#include <rps/domain/rps.h>
 #include <sys/stat.h>
 
 namespace i18n {

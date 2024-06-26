@@ -69,6 +69,13 @@ unsigned int find_player_lobby_id(const dpp::snowflake player_id);
  */
 unsigned int find_open_lobby_id();
 
+/**
+ * @brief Get the global lobby id object
+ *
+ * @return unsigned int
+ */
+unsigned int get_global_lobby_id();
+
 void remove_lobby_from_queue(const unsigned int lobby_id, const bool game_over);
 unsigned int create_lobby();
 void add_player_to_lobby(const unsigned int lobby_id,

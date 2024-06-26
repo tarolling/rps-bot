@@ -16,7 +16,7 @@
  *
  ************************************************************************************/
 #include <dpp/dpp.h>
-#include <rps/command.h>
+#include <rps/domain/command.h>
 
 /**
  * @brief Internal command map

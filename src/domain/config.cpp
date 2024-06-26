@@ -18,7 +18,7 @@
 #include <dpp/dpp.h>
 #include <dpp/json.h>
 #include <fstream>
-#include <rps/rps.h>
+#include <rps/domain/rps.h>
 
 namespace config {
 

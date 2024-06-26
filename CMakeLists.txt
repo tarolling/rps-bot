@@ -9,8 +9,10 @@ project(${BOT_NAME}
     LANGUAGES CXX
 )
 
-aux_source_directory(src/discord bot_src)
-aux_source_directory(src/discord/commands bot_src)
+aux_source_directory(src/presentation bot_src)
+aux_source_directory(src/domain bot_src)
+aux_source_directory(src/domain/commands bot_src)
+aux_source_directory(src/data_source bot_src)
 add_executable(${BOT_NAME} ${bot_src})
 
 string(ASCII 27 Esc)

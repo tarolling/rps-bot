@@ -26,8 +26,8 @@
 #include <list>
 #include <memory>
 #include <mutex>
-#include <rps/embeds.h>
-#include <rps/game.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/game.h>
 
 namespace game {
 
@@ -95,6 +95,16 @@ unsigned int find_open_lobby_id() {
   }
 
   return 0;
+}
+
+/**
+ * @brief Get the global lobby id object
+ * PROTECTED
+ * @return unsigned int
+ */
+unsigned int get_global_lobby_id() {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  return global_lobby_id;
 }
 
 /**

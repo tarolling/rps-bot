@@ -20,7 +20,7 @@
 #include <dpp/snowflake.h>
 #include <dpp/user.h>
 #include <fmt/format.h>
-#include <rps/embeds.h>
+#include <rps/domain/embeds.h>
 
 using namespace i18n;
 

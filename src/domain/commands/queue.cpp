@@ -21,10 +21,10 @@
 #include <dpp/message.h>
 #include <dpp/misc-enum.h>
 #include <dpp/timer.h>
-#include <rps/commands/leave.h>
-#include <rps/commands/queue.h>
-#include <rps/embeds.h>
-#include <rps/game.h>
+#include <rps/domain/commands/leave.h>
+#include <rps/domain/commands/queue.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/game.h>
 #include <variant>
 
 dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {

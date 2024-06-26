@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <rps/component_builder.h>
+#include <rps/domain/component_builder.h>
 
 component_builder::component_builder(const dpp::message &m)
     : index(0), component_parent(0), message(m) {

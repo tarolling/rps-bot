@@ -17,7 +17,7 @@
  ************************************************************************************/
 #pragma once
 #include <dpp/json_fwd.h>
-#include <rps/rps.h>
+#include <rps/domain/rps.h>
 
 namespace config {
 

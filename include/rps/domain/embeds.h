@@ -20,8 +20,8 @@
 
 #include <cstdint>
 #include <dpp/message.h>
-#include <rps/config.h>
-#include <rps/lang.h>
+#include <rps/domain/config.h>
+#include <rps/domain/lang.h>
 
 using namespace i18n;
 

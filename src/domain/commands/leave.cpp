@@ -17,9 +17,9 @@
  ************************************************************************************/
 
 #include <dpp/appcommand.h>
-#include <rps/commands/leave.h>
-#include <rps/embeds.h>
-#include <rps/game.h>
+#include <rps/domain/commands/leave.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/game.h>
 
 dpp::slashcommand leave_command::register_command(dpp::cluster &bot) {
   return dpp::slashcommand("leave", "Leave the RPS queue", bot.me.id)
