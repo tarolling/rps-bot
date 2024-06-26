@@ -67,31 +67,3 @@ inline int atoi(const std::string &str) {
     return 0;
   return atoi(str.c_str());
 }
-
-/**
- * @brief Replaces all occurences of substring in string
- * Source: <https://stackoverflow.com/a/29752943>
- *
- * @param source string being operated on
- * @param from original substring
- * @param to target substring
- */
-inline void replace_all(std::string &source, const std::string &from,
-                        const std::string &to) {
-  std::string newString;
-  newString.reserve(source.length()); // avoids a few memory allocations
-
-  std::string::size_type lastPos = 0;
-  std::string::size_type findPos;
-
-  while (std::string::npos != (findPos = source.find(from, lastPos))) {
-    newString.append(source, lastPos, findPos - lastPos);
-    newString += to;
-    lastPos = findPos + from.length();
-  }
-
-  // Care for the rest after last occurrence
-  newString += source.substr(lastPos);
-
-  source.swap(newString);
-}

@@ -39,7 +39,7 @@
         "en": "Want to join?"
     },
     "E_TYPE_TO_JOIN": {
-        "en": "Type `/X` or `!X` to join this lobby!"
+        "en": "Type `/{}` or `!{}` to join this lobby!"
     },
     "E_WAITING": {
         "en": "Waiting for opponent..."

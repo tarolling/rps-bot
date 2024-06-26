@@ -28,8 +28,9 @@ using namespace i18n;
 namespace embeds {
 dpp::message queue(const dpp::interaction_create_t &interaction,
                    const dpp::user &player, const unsigned int player_count) {
-  std::string type_to_join = tr("E_TYPE_TO_JOIN", interaction);
-  replace_all(type_to_join, "X", tr("c_queue", interaction));
+  std::string type_to_join =
+      fmt::format(fmt::runtime(tr("E_TYPE_TO_JOIN", interaction)),
+                  tr("c_queue", interaction), tr("c_queue", interaction));
 
   if (player_count == 1) {
     return dpp::embed()
