@@ -1,8 +1,47 @@
 {
-    "POWERED_BY": {
+    "c_queue": {
+        "en": "queue"
+    },
+    "d_queue": {
+        "en": "Enter into the RPS queue"
+    },
+    "co_queue": {
+        "en": "timeout"
+    },
+    "cod_queue": {
+        "en": "How long to stay in queue for (minutes)"
+    },
+    "c_leave": {
+        "en": "leave"
+    },
+    "d_leave": {
+        "en": "Leave the queue"
+    },
+    "R_PLAYER_ALREADY_IN_LOBBY": {
+        "en": "You are already in a lobby."
+    },
+    "E_POWERED_BY": {
         "en": "Powered By RPS Bot"
     },
-    "WANT_TO_JOIN": {
+    "E_ZERO_PLAYERS": {
+        "en": "0 players are in the queue"
+    },
+    "E_ONE_PLAYER": {
+        "en": "1 player is in the queue"
+    },
+    "E_TWO_PLAYERS": {
+        "en": "2 players are in the queue"
+    },
+    "E_MAKE_SELECTION": {
+        "en": "Make your selection. You have 30 seconds! First to 4 wins."
+    },
+    "E_WANT_TO_JOIN": {
         "en": "Want to join?"
+    },
+    "E_TYPE_TO_JOIN": {
+        "en": "Type `/X` or `!X` to join this lobby!"
+    },
+    "E_WAITING": {
+        "en": "Waiting for opponent..."
     }
 }

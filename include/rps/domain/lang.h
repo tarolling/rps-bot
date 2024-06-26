@@ -18,6 +18,7 @@
 #pragma once
 
 #include <dpp/dpp.h>
+#include <fmt/format.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -28,5 +29,27 @@ time_t get_mtime(const char *path);
 void load_lang(dpp::cluster &bot);
 
 void check_lang_reload(dpp::cluster &bot);
+
+std::string tr(const std::string &k,
+               const dpp::interaction_create_t &interaction);
+
+dpp::slashcommand tr(dpp::slashcommand cmd);
+
+template <typename... T>
+std::string tr(const std::string &key,
+               const dpp::interaction_create_t &interaction, T &&...args) {
+  try {
+    return fmt::format(fmt::runtime(tr(key, interaction)),
+                       std::forward<T>(args)...);
+  } catch (const std::exception &format_exception) {
+    if (interaction.from && interaction.from->creator) {
+      interaction.from->creator->log(
+          dpp::ll_error, "Error in translation string for translation " + key +
+                             " lang " + interaction.command.locale + ": " +
+                             format_exception.what());
+    }
+    return key;
+  }
+}
 
 } // namespace i18n

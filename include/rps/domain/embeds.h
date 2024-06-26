@@ -29,40 +29,45 @@ constexpr uint16_t AVATAR_SIZE = 1024;
 
 constexpr uint32_t EMBED_COLOR = 0xd5b994;
 
-inline dpp::embed_footer footer() {
+inline dpp::embed_footer footer(const dpp::interaction_create_t &interaction) {
   return dpp::embed_footer()
-      .set_text("Powered By RPS Bot")
+      .set_text(tr("E_POWERED_BY", interaction))
       .set_icon(config::get("icon"));
 };
 
 namespace embeds {
-[[nodiscard]] dpp::message queue(const dpp::user &player,
+[[nodiscard]] dpp::message queue(const dpp::interaction_create_t &interaction,
+                                 const dpp::user &player,
                                  const unsigned int player_count);
 
-[[nodiscard]] dpp::message leave(const dpp::user &player);
+[[nodiscard]] dpp::message leave(const dpp::interaction_create_t &interaction,
+                                 const dpp::user &player);
 
 [[nodiscard]] dpp::message
-game(const unsigned int lobby_id, const unsigned int game_num,
-     const std::string &player_one_name, const unsigned int player_one_score,
-     const std::string &player_two_name, const unsigned int player_two_score);
+game(const dpp::interaction_create_t &interaction, const unsigned int lobby_id,
+     const unsigned int game_num, const std::string &player_one_name,
+     const unsigned int player_one_score, const std::string &player_two_name,
+     const unsigned int player_two_score);
 
-[[nodiscard]] dpp::message waiting(const unsigned int game_num,
+[[nodiscard]] dpp::message waiting(const dpp::interaction_create_t &interaction,
+                                   const unsigned int game_num,
                                    const std::string &player_one_name,
                                    const std::string &player_one_choice,
                                    const std::string &player_two_name,
                                    const std::string &player_two_choice);
 
-[[nodiscard]] dpp::message game_result(const unsigned int game_num,
-                                       const std::string &player_one_name,
-                                       const std::string &player_one_choice,
-                                       const std::string &player_two_name,
-                                       const std::string &player_two_choice,
-                                       const std::string &result);
+[[nodiscard]] dpp::message
+game_result(const dpp::interaction_create_t &interaction,
+            const unsigned int game_num, const std::string &player_one_name,
+            const std::string &player_one_choice,
+            const std::string &player_two_name,
+            const std::string &player_two_choice, const std::string &result);
 
 [[nodiscard]] dpp::message match_result(
-    const unsigned int lobby_id, const unsigned int game_num,
-    const std::string &player_one_name, const unsigned int player_one_score,
-    const std::string &player_two_name, const unsigned int player_two_score,
-    const dpp::user &winner, bool double_afk);
+    const dpp::interaction_create_t &interaction, const unsigned int lobby_id,
+    const unsigned int game_num, const std::string &player_one_name,
+    const unsigned int player_one_score, const std::string &player_two_name,
+    const unsigned int player_two_score, const dpp::user &winner,
+    bool double_afk);
 
 }; // namespace embeds

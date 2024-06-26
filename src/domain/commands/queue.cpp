@@ -27,17 +27,15 @@
 #include <rps/domain/game.h>
 #include <variant>
 
-dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
-  return dpp::slashcommand("queue", "Enter into the RPS queue", bot.me.id)
-      .set_dm_permission(true)
-      .add_option(dpp::command_option(dpp::co_integer, "queue_time",
-                                      "Minutes to stay in queue")
-                      .set_min_value(1)
-                      .set_max_value(60));
-}
+using namespace i18n;
 
-void timer_callback(const dpp::slashcommand_t &event) {
-  leave_command::route(event);
+dpp::slashcommand queue_command::register_command(dpp::cluster &bot) {
+  return tr(dpp::slashcommand("c_queue", "d_queue", bot.me.id)
+                .set_dm_permission(true)
+                .add_option(dpp::command_option(dpp::co_integer, "co_queue",
+                                                "cod_queue")
+                                .set_min_value(1)
+                                .set_max_value(60)));
 }
 
 void queue_command::route(const dpp::slashcommand_t &event) {
@@ -47,7 +45,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
       game::find_player_lobby_id(event.command.usr.id);
   if (player_lobby_id != 0) {
     /* Game found */
-    event.reply(dpp::message("You are already in a lobby.")
+    event.reply(dpp::message(tr("R_PLAYER_ALREADY_IN_LOBBY", event))
                     .set_flags(dpp::m_ephemeral));
     return;
   }
@@ -63,10 +61,11 @@ void queue_command::route(const dpp::slashcommand_t &event) {
 
   long queue_time = 0;
   if (std::holds_alternative<std::monostate>(
-          event.get_parameter("queue_time"))) {
+          event.get_parameter(tr("CO_QUEUE", event)))) {
     queue_time = config::get("default_queue_time");
   } else {
-    queue_time = std::get<std::int64_t>(event.get_parameter("queue_time"));
+    queue_time =
+        std::get<std::int64_t>(event.get_parameter(tr("CO_QUEUE", event)));
   }
 
   game::start_queue_timer(
@@ -75,7 +74,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
           [=](unsigned long t) {
             game::remove_lobby_from_queue(open_lobby_id, false);
             event.from->creator->message_create(
-                embeds::leave(event.command.usr)
+                embeds::leave(event, event.command.usr)
                     .set_channel_id(event.command.channel_id));
             event.from->creator->stop_timer(t);
           },
@@ -84,7 +83,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
   const unsigned int player_count = game::get_num_players(open_lobby_id);
 
   /* Send confirmation embed */
-  event.reply(embeds::queue(event.command.usr, player_count));
+  event.reply(embeds::queue(event, event.command.usr, player_count));
 
   if (player_count == 2) {
     bot->log(dpp::ll_debug, fmt::format("Lobby {} started!", open_lobby_id));
