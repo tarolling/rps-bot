@@ -19,8 +19,8 @@
 #include <cstdlib>
 #include <getopt.h>
 #include <iostream>
-#include <rps/commandline.h>
-#include <rps/rps.h>
+#include <rps/domain/commandline.h>
+#include <rps/domain/rps.h>
 #include <unistd.h>
 
 namespace commandline {
