@@ -759,8 +759,8 @@ void handle_choice(const dpp::button_click_t &event) {
   set_player_choice(event.command.get_issuing_user().id, event.custom_id);
   creator->direct_message_create(
       event.command.get_issuing_user().id,
-      dpp::message(fmt::format("You selected {}! Waiting for opponent...",
-                               event.custom_id)));
+      dpp::message(fmt::format("You selected {}! {}", event.custom_id,
+                               tr("E_WAITING", event))));
 
   /* 2. If both choices are selected, determine who won and increment winner
    */
