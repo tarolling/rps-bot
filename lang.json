@@ -2,76 +2,91 @@
     "c_queue": {
         "en": "queue",
         "hr": "prijava",
-        "uk": "стати-в-чергу"
+        "uk": "стати-в-чергу",
+        "ja": "キュー"
     },
     "d_queue": {
         "en": "Enter into the RPS queue",
         "hr": "Uđite u red za RPS",
-        "uk": "Стати в чергу КНП"
+        "uk": "Стати в чергу КНП",
+        "ja": "じゃん拳のキューに入る"
     },
     "co_queue": {
         "en": "timeout",
         "hr": "čekanje",
-        "uk": "тривалість"
+        "uk": "тривалість",
+        "ja": "タイムアウト"
     },
     "cod_queue": {
         "en": "How long to stay in queue for (minutes)",
         "hr": "Koliko (minuta) ostajete u redu",
-        "uk": "Наскільки довго залишатися в черзі (у хвилинах)"
+        "uk": "Наскільки довго залишатися в черзі (у хвилинах)",
+        "ja": "キューに入る時間 (分)"
     },
     "c_leave": {
         "en": "leave",
         "hr": "izaći",
-        "uk": "вийти"
+        "uk": "вийти",
+        "ja": "出る"
     },
     "d_leave": {
         "en": "Leave the queue",
         "hr": "Izađite iz reda",
-        "uk": "Вийти з черги"
+        "uk": "Вийти з черги",
+        "ja": "キューを出る"
     },
     "R_PLAYER_ALREADY_IN_LOBBY": {
         "en": "You are already in a lobby.",
         "hr": "Već ste u redu i čekate.",
-        "uk": "Ви вже знаходитеся в лоббі."
+        "uk": "Ви вже знаходитеся в лоббі.",
+        "ja": "既にロビーに入っている。"
     },
     "E_POWERED_BY": {
         "en": "Powered By RPS Bot",
         "hr": "Napravljeno od strane RPS Bota",
-        "uk": "Працює на RPS Bot"
+        "uk": "Працює на RPS Bot",
+        "ja": "RPS Botによって提供されている"
     },
     "E_ZERO_PLAYERS": {
         "en": "0 players are in the queue",
         "hr": "0 igrača je u redu",
-        "uk": "У черзі 0 гравців"
+        "uk": "У черзі 0 гравців",
+        "ja": "０人がキューに入っている"
     },
     "E_ONE_PLAYER": {
         "en": "1 player is in the queue",
         "hr": "1 igrač je u redu",
-        "uk": "У черзі 1 гравець"
+        "uk": "У черзі 1 гравець",
+        "ja": "１人がキューに入っている"
     },
     "E_TWO_PLAYERS": {
         "en": "2 players are in the queue",
         "hr": "2 igrača su u redu",
-        "uk": "У черзі 2 гравці"
+        "uk": "У черзі 2 гравці",
+        "ja": "２人がキューに入っている"
     },
     "E_MAKE_SELECTION": {
         "en": "Make your selection. You have 30 seconds! First to 4 wins.",
         "hr": "Izaberite potez. Imate 30 sekundi! Prvi do 4 je pobednik.",
-        "uk": "Зробіть Ваш вибір. У вас є 30 секунд! Перемагає той, хто виграє 4 рази."
+        "uk": "Зробіть Ваш вибір. У вас є 30 секунд! Перемагає той, хто виграє 4 рази.",
+        "ja": "選択してください。30秒が残っています。先に4点取った方が勝ちます。"
     },
     "E_WANT_TO_JOIN": {
         "en": "Want to join?",
         "hr": "Želite li da uđete?",
-        "uk": "Хочете приєднатися?"
+        "uk": "Хочете приєднатися?",
+        "ja": "参加したいですか。"
     },
     "E_TYPE_TO_JOIN": {
         "en": "Type `/{}` or `!{}` to join this lobby!",
         "hr": "Napišite `/{}` ili `!{}` da biste ušli u igru!",
-        "uk": "Напишіть `/{}` або `!{}` щоби приєднатися до цього лоббі!"
+        "uk": "Напишіть `/{}` або `!{}` щоби приєднатися до цього лоббі!",
+        "ja": "このロビーに入るには`/{}`または`!{}`を入力してください。"
     },
     "E_WAITING": {
         "en": "Waiting for opponent...",
         "hr": "Čeka se protivnik...",
-        "uk": "Очікування на суперника..."
+        "uk": "Очікування на суперника...",
+        "ja": "敵を待っています..."
     }
 }
