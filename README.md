@@ -31,3 +31,8 @@ questions related to development!
 ### Additional Instructions
 
 Create a `config.json` file, and fill in the fields according to [the example file](example-config.json).
+
+### Acknowledgments
+
+Ukranian translations - @Henonicks
+Croatian translations - tigar8118 on Discord
