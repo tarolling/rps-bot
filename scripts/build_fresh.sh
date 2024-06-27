@@ -16,5 +16,5 @@ rm dpp.deb
 
 rm -rf build/
 mkdir build && cd build || exit
-cmake -S .. -B . -DDPP_CORO=on
+cmake -S .. -B .
 make -j "$(nproc)"
