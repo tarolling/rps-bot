@@ -34,5 +34,10 @@ Create a `config.json` file, and fill in the fields according to [the example fi
 
 ### Acknowledgments
 
-Ukranian translations - @Henonicks
-Croatian translations - tigar8118 on Discord
+#### Translations
+
+:ukraine: - @Henonicks
+
+:croatia: - tigar8118 on Discord
+
+:jp: - kingofpink on Discord
