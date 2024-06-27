@@ -45,11 +45,11 @@
     },
     "E_MAKE_SELECTION": {
         "en": "Make your selection. You have 30 seconds! First to 4 wins.",
-        "uk": "Зробіть вибір. У вас є 30 секунд!"
+        "uk": "Зробіть Ваш вибір. У вас є 30 секунд! Перемагає той, хто виграє 4 рази."
     },
     "E_WANT_TO_JOIN": {
         "en": "Want to join?",
-        "uk": "Хочете приєднатися"
+        "uk": "Хочете приєднатися?"
     },
     "E_TYPE_TO_JOIN": {
         "en": "Type `/{}` or `!{}` to join this lobby!",
