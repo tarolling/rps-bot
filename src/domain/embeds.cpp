@@ -20,39 +20,52 @@
 #include <dpp/snowflake.h>
 #include <dpp/user.h>
 #include <fmt/format.h>
-#include <rps/embeds.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/rps.h>
 
 using namespace i18n;
 
 namespace embeds {
-dpp::message queue(const dpp::user &player, const unsigned int player_count) {
-  std::string adjustment = (player_count == 1) ? " is" : "s are";
-  dpp::embed embed = dpp::embed()
-                         .set_title(fmt::format("{} player{} in the queue",
-                                                player_count, adjustment))
-                         .set_description(fmt::format("**{}** has joined.",
-                                                      player.format_username()))
-                         .set_thumbnail(player.get_avatar_url(AVATAR_SIZE))
-                         .set_footer(footer())
-                         .set_color(EMBED_COLOR);
-  return (player_count == 1)
-             ? embed.add_field("Want to join?",
-                               "Type `/queue` or `!queue` to join this lobby!")
-             : embed;
+dpp::message queue(const dpp::interaction_create_t &interaction,
+                   const dpp::user &player, const unsigned int player_count) {
+  std::string type_to_join =
+      fmt::format(fmt::runtime(tr("E_TYPE_TO_JOIN", interaction)),
+                  tr("c_queue", interaction), tr("c_queue", interaction));
+
+  if (player_count == 1) {
+    return dpp::embed()
+        .set_title(tr("E_ONE_PLAYER", interaction))
+        .set_description(
+            fmt::format("**{}** has joined.", player.format_username()))
+        .set_thumbnail(player.get_avatar_url(AVATAR_SIZE))
+        .add_field(tr("E_WANT_TO_JOIN", interaction), type_to_join)
+        .set_footer(footer(interaction))
+        .set_color(EMBED_COLOR);
+  } else {
+    return dpp::embed()
+        .set_title(tr("E_TWO_PLAYERS", interaction))
+        .set_description(
+            fmt::format("**{}** has joined.", player.format_username()))
+        .set_thumbnail(player.get_avatar_url(AVATAR_SIZE))
+        .set_footer(footer(interaction))
+        .set_color(EMBED_COLOR);
+  }
 }
 
-dpp::message leave(const dpp::user &player) {
+dpp::message leave(const dpp::interaction_create_t &interaction,
+                   const dpp::user &player) {
   return dpp::message().add_embed(
       dpp::embed()
-          .set_title("0 players are in the queue")
+          .set_title(tr("E_ZERO_PLAYERS", interaction))
           .set_description(
               fmt::format("**{}** has left.", player.format_username()))
           .set_thumbnail(player.get_avatar_url(AVATAR_SIZE))
-          .set_footer(footer())
+          .set_footer(footer(interaction))
           .set_color(EMBED_COLOR));
 }
 
-dpp::message game(const unsigned int lobby_id, const unsigned int game_num,
+dpp::message game(const dpp::interaction_create_t &interaction,
+                  const unsigned int lobby_id, const unsigned int game_num,
                   const std::string &player_one_name,
                   const unsigned int player_one_score,
                   const std::string &player_two_name,
@@ -62,13 +75,12 @@ dpp::message game(const unsigned int lobby_id, const unsigned int game_num,
           dpp::embed()
               .set_title(fmt::format("Lobby #{} - Game {}", lobby_id, game_num))
               /* TODO: Add variable for first to 4 wins */
-              .set_description(
-                  "Make your selection. You have 30 seconds! First to 4 wins.")
+              .set_description(tr("E_MAKE_SELECTION", interaction))
               .add_field(fmt::format("{}", player_one_score), player_one_name,
                          true)
               .add_field(fmt::format("{}", player_two_score), player_two_name,
                          true)
-              .set_footer(footer())
+              .set_footer(footer(interaction))
               .set_color(EMBED_COLOR))
       .add_component(
           dpp::component()
@@ -90,24 +102,26 @@ dpp::message game(const unsigned int lobby_id, const unsigned int game_num,
                       .set_style(dpp::component_style::cos_primary)));
 }
 
-dpp::message waiting(const unsigned int game_num,
+dpp::message waiting(const dpp::interaction_create_t &interaction,
+                     const unsigned int game_num,
                      const std::string &player_one_name,
                      const std::string &player_one_choice,
                      const std::string &player_two_name,
                      const std::string &player_two_choice) {
   return dpp::message().add_embed(
       dpp::embed()
-          .set_title("Waiting for opponent...")
+          .set_title(tr("E_WAITING", interaction))
           .set_description(fmt::format("Game {}", game_num))
           .add_field(player_one_choice.empty() ? "???" : player_one_choice,
                      player_one_name, true)
           .add_field(player_two_choice.empty() ? "???" : player_two_choice,
                      player_two_name, true)
-          .set_footer(footer())
+          .set_footer(footer(interaction))
           .set_color(EMBED_COLOR));
 }
 
-dpp::message game_result(const unsigned int game_num,
+dpp::message game_result(const dpp::interaction_create_t &interaction,
+                         const unsigned int game_num,
                          const std::string &player_one_name,
                          const std::string &player_one_choice,
                          const std::string &player_two_name,
@@ -121,11 +135,12 @@ dpp::message game_result(const unsigned int game_num,
                      player_one_name, true)
           .add_field(player_two_choice.empty() ? "DNP" : player_two_choice,
                      player_two_name, true)
-          .set_footer(footer())
+          .set_footer(footer(interaction))
           .set_color(EMBED_COLOR));
 }
 
-dpp::message match_result(const unsigned int lobby_id,
+dpp::message match_result(const dpp::interaction_create_t &interaction,
+                          const unsigned int lobby_id,
                           const unsigned int game_num,
                           const std::string &player_one_name,
                           const unsigned int player_one_score,
@@ -139,7 +154,7 @@ dpp::message match_result(const unsigned int lobby_id,
           .add_field(fmt::format("{}", player_one_score), player_one_name, true)
           .add_field(fmt::format("{}", player_two_score), player_two_name, true)
           .set_thumbnail(double_afk ? "" : winner.get_avatar_url(AVATAR_SIZE))
-          .set_footer(footer())
+          .set_footer(footer(interaction))
           .set_color(EMBED_COLOR));
 }
 

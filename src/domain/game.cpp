@@ -26,8 +26,8 @@
 #include <list>
 #include <memory>
 #include <mutex>
-#include <rps/embeds.h>
-#include <rps/game.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/game.h>
 
 namespace game {
 
@@ -95,6 +95,16 @@ unsigned int find_open_lobby_id() {
   }
 
   return 0;
+}
+
+/**
+ * @brief Get the global lobby id object
+ * PROTECTED
+ * @return unsigned int
+ */
+unsigned int get_global_lobby_id() {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  return global_lobby_id;
 }
 
 /**
@@ -463,8 +473,9 @@ void send_game_messages(const unsigned int lobby_id) {
   for (const auto &player_info : found_lobby.players) {
     creator->direct_message_create(
         player_info->player.id,
-        embeds::game(lobby_id, game_num, player_one_name, player_one_score,
-                     player_two_name, player_two_score));
+        embeds::game(player_info->init_interaction, lobby_id, game_num,
+                     player_one_name, player_one_score, player_two_name,
+                     player_two_score));
   }
 }
 
@@ -489,18 +500,22 @@ void send_result_messages(const unsigned int lobby_id,
   std::string player_two_name = get_player_name(lobby_id, 1);
   std::string player_two_choice = get_player_choice(get_player_id(lobby_id, 1));
   unsigned int player_two_score = get_player_score(lobby_id, 1);
+  dpp::slashcommand_t winner_int = get_player_interaction(lobby_id, winner);
+  dpp::slashcommand_t loser_int = get_player_interaction(lobby_id, loser);
 
-  dpp::message msg_win =
-      embeds::game_result(game_num, player_one_name, player_one_choice,
-                          player_two_name, player_two_choice, "WIN");
-  dpp::message msg_loss =
-      embeds::game_result(game_num, player_one_name, player_one_choice,
-                          player_two_name, player_two_choice, "LOSS");
+  dpp::message msg_win = embeds::game_result(
+      winner_int, game_num, player_one_name, player_one_choice, player_two_name,
+      player_two_choice, "WIN");
+  dpp::message msg_loss = embeds::game_result(
+      loser_int, game_num, player_one_name, player_one_choice, player_two_name,
+      player_two_choice, "LOSS");
   if (draw) {
-    msg_win = embeds::game_result(game_num, player_one_name, player_one_choice,
-                                  player_two_name, player_two_choice, "DRAW");
-    msg_loss = embeds::game_result(game_num, player_one_name, player_one_choice,
-                                   player_two_name, player_two_choice, "DRAW");
+    msg_win = embeds::game_result(winner_int, game_num, player_one_name,
+                                  player_one_choice, player_two_name,
+                                  player_two_choice, "DRAW");
+    msg_loss = embeds::game_result(loser_int, game_num, player_one_name,
+                                   player_one_choice, player_two_name,
+                                   player_two_choice, "DRAW");
   }
 
   /* These need to be sent before the next game message is sent, so we make them
@@ -669,18 +684,34 @@ void clear_game_timer(const unsigned int lobby_id) {
 
 void send_match_results(const unsigned int lobby_id, const dpp::user &winner,
                         bool double_afk = false) {
-  dpp::message msg = embeds::match_result(
-      lobby_id, get_game_num(lobby_id), get_player_name(lobby_id, 0),
-      get_player_score(lobby_id, 0), get_player_name(lobby_id, 1),
-      get_player_score(lobby_id, 1), winner, double_afk);
-  creator->direct_message_create(get_player_id(lobby_id, 0), msg);
-  creator->direct_message_create(get_player_id(lobby_id, 1), msg);
-
-  /* Send results in channels that players queued in */
   dpp::slashcommand_t player_one_interaction =
       get_player_interaction(lobby_id, 0);
   dpp::slashcommand_t player_two_interaction =
       get_player_interaction(lobby_id, 1);
+
+  dpp::message player_one_message = embeds::match_result(
+      player_one_interaction, lobby_id, get_game_num(lobby_id),
+      get_player_name(lobby_id, 0), get_player_score(lobby_id, 0),
+      get_player_name(lobby_id, 1), get_player_score(lobby_id, 1), winner,
+      double_afk);
+
+  dpp::message player_two_message = embeds::match_result(
+      player_two_interaction, lobby_id, get_game_num(lobby_id),
+      get_player_name(lobby_id, 0), get_player_score(lobby_id, 0),
+      get_player_name(lobby_id, 1), get_player_score(lobby_id, 1), winner,
+      double_afk);
+
+  creator->direct_message_create(get_player_id(lobby_id, 0),
+                                 player_one_message);
+  creator->direct_message_create(get_player_id(lobby_id, 1),
+                                 player_two_message);
+
+  /* Send results in channels that players queued in */
+  dpp::message msg = embeds::match_result(
+      dpp::interaction_create_t(), lobby_id, get_game_num(lobby_id),
+      get_player_name(lobby_id, 0), get_player_score(lobby_id, 0),
+      get_player_name(lobby_id, 1), get_player_score(lobby_id, 1), winner,
+      double_afk);
 
   /* Both of them were in DMs, so no work needed */
   if ((player_one_interaction.command.guild_id.empty() ||
@@ -728,8 +759,8 @@ void handle_choice(const dpp::button_click_t &event) {
   set_player_choice(event.command.get_issuing_user().id, event.custom_id);
   creator->direct_message_create(
       event.command.get_issuing_user().id,
-      dpp::message(fmt::format("You selected {}! Waiting for opponent...",
-                               event.custom_id)));
+      dpp::message(fmt::format("You selected {}! {}", event.custom_id,
+                               tr("E_WAITING", event))));
 
   /* 2. If both choices are selected, determine who won and increment winner
    */

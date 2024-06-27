@@ -15,24 +15,32 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/dpp.h>
-#include <rps/command.h>
+#pragma once
+#include <dpp/json_fwd.h>
+#include <rps/domain/rps.h>
+
+namespace config {
 
 /**
- * @brief Internal command map
+ * @brief Initialise config file
+ *
+ * @param config_file Config file to read
  */
-static registered_command_list registered_commands;
+void init(const std::string &config_file);
 
-registered_command_list &get_command_map() { return registered_commands; }
+/**
+ * @brief Get all config values from a specific key
+ *
+ * @param key The key, if empty/omitted the root node is returned
+ * @return json& configuration or empty container if not found
+ */
+json &get(const std::string &key = "");
 
-void route_command(const dpp::slashcommand_t &event) {
-  auto ref = registered_commands.find(event.command.get_command_name());
-  if (ref != registered_commands.end()) {
-    auto ptr = ref->second;
-    (*ptr)(event);
-  } else {
-    event.from->creator->log(dpp::ll_error,
-                             "Unable to route command: " +
-                                 event.command.get_command_name());
-  }
-}
+/**
+ * Returns true if the specified key exists
+ * @param key
+ * @return true if key exists
+ */
+bool exists(const std::string &key);
+
+}; // namespace config

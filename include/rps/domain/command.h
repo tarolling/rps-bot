@@ -17,7 +17,7 @@
  ************************************************************************************/
 #pragma once
 #include <dpp/dpp.h>
-#include <rps/rps.h>
+#include <rps/domain/rps.h>
 
 /**
  * @brief All commands derive from this struct. Note that these structs are

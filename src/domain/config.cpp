@@ -15,32 +15,27 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#pragma once
-#include <dpp/json_fwd.h>
-#include <rps/rps.h>
+#include <dpp/dpp.h>
+#include <dpp/json.h>
+#include <fstream>
+#include <rps/domain/rps.h>
 
 namespace config {
 
-/**
- * @brief Initialise config file
- *
- * @param config_file Config file to read
- */
-void init(const std::string &config_file);
+static json configdocument;
 
-/**
- * @brief Get all config values from a specific key
- *
- * @param key The key, if empty/omitted the root node is returned
- * @return json& configuration or empty container if not found
- */
-json &get(const std::string &key = "");
+void init(const std::string &config_file) {
+  /* Set up the bot cluster and read the configuration json */
+  std::ifstream configfile(config_file);
+  configfile >> configdocument;
+}
 
-/**
- * Returns true if the specified key exists
- * @param key
- * @return true if key exists
- */
-bool exists(const std::string &key);
+bool exists(const std::string &key) { return configdocument.contains(key); }
 
+json &get(const std::string &key) {
+  if (key.empty()) {
+    return configdocument;
+  }
+  return configdocument.at(key);
+}
 }; // namespace config

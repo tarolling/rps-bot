@@ -15,27 +15,12 @@
  * limitations under the License.
  *
  ************************************************************************************/
-#include <dpp/dpp.h>
-#include <dpp/json.h>
-#include <fstream>
-#include <rps/rps.h>
+#pragma once
+#include <rps/domain/command.h>
+#include <rps/domain/rps.h>
 
-namespace config {
-
-static json configdocument;
-
-void init(const std::string &config_file) {
-  /* Set up the bot cluster and read the configuration json */
-  std::ifstream configfile(config_file);
-  configfile >> configdocument;
-}
-
-bool exists(const std::string &key) { return configdocument.contains(key); }
-
-json &get(const std::string &key) {
-  if (key.empty()) {
-    return configdocument;
-  }
-  return configdocument.at(key);
-}
-}; // namespace config
+struct queue_command : public command {
+  static constexpr std::string_view name{"queue"};
+  static dpp::slashcommand register_command(dpp::cluster &bot);
+  static void route(const dpp::slashcommand_t &event);
+};

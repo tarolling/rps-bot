@@ -20,14 +20,14 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <malloc.h>
-#include <rps/command.h>
-#include <rps/embeds.h>
-#include <rps/game.h>
-#include <rps/lang.h>
-#include <rps/listeners.h>
+#include <rps/domain/command.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/game.h>
+#include <rps/domain/lang.h>
+#include <rps/domain/listeners.h>
 
-#include <rps/commands/leave.h>
-#include <rps/commands/queue.h>
+#include <rps/domain/commands/leave.h>
+#include <rps/domain/commands/queue.h>
 #include <string>
 
 namespace listeners {
@@ -64,8 +64,8 @@ void on_ready(const dpp::ready_t &event) {
     auto set_presence = [&bot, event]() {
       bot.set_presence(dpp::presence(
           dpp::ps_online, dpp::at_game,
-          fmt::format("Is RPS all luck, or pure skill? Competing in {} servers",
-                      event.guild_count)));
+          fmt::format("{} lobbies created across {} servers!",
+                      game::get_global_lobby_id(), event.guild_count)));
     };
 
     bot.start_timer([set_presence](dpp::timer t) { set_presence(); }, 240);

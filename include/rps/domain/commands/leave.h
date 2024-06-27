@@ -16,8 +16,8 @@
  *
  ************************************************************************************/
 #pragma once
-#include <rps/command.h>
-#include <rps/rps.h>
+#include <rps/domain/command.h>
+#include <rps/domain/rps.h>
 
 struct leave_command : public command {
   static constexpr std::string_view name{"leave"};

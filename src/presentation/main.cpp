@@ -21,12 +21,12 @@
 
 #include <cstdlib>
 #include <dpp/dpp.h>
-#include <rps/commandline.h>
-#include <rps/config.h>
-#include <rps/game.h>
-#include <rps/lang.h>
-#include <rps/listeners.h>
-#include <rps/logger.h>
+#include <rps/domain/commandline.h>
+#include <rps/domain/config.h>
+#include <rps/domain/game.h>
+#include <rps/domain/lang.h>
+#include <rps/domain/listeners.h>
+#include <rps/domain/logger.h>
 
 int main(int argc, char const *argv[]) {
   (void)std::setlocale(LC_ALL, "en_US.UTF-8");

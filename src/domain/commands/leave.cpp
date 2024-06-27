@@ -17,13 +17,15 @@
  ************************************************************************************/
 
 #include <dpp/appcommand.h>
-#include <rps/commands/leave.h>
-#include <rps/embeds.h>
-#include <rps/game.h>
+#include <rps/domain/commands/leave.h>
+#include <rps/domain/embeds.h>
+#include <rps/domain/game.h>
+
+using namespace i18n;
 
 dpp::slashcommand leave_command::register_command(dpp::cluster &bot) {
-  return dpp::slashcommand("leave", "Leave the RPS queue", bot.me.id)
-      .set_dm_permission(true);
+  return tr(dpp::slashcommand("c_leave", "d_leave", bot.me.id)
+                .set_dm_permission(true));
 }
 
 void leave_command::route(const dpp::slashcommand_t &event) {
@@ -48,5 +50,5 @@ void leave_command::route(const dpp::slashcommand_t &event) {
   game::remove_lobby_from_queue(player_lobby_id, false);
 
   /* Send confirmation embed */
-  event.reply(embeds::leave(event.command.usr));
+  event.reply(embeds::leave(event, event.command.usr));
 }
