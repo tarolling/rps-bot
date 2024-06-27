@@ -1,47 +1,62 @@
 {
     "c_queue": {
-        "en": "queue"
+        "en": "queue",
+        "uk": "стати в чергу"
     },
     "d_queue": {
-        "en": "Enter into the RPS queue"
+        "en": "Enter into the RPS queue",
+        "uk": "Стати в чергу КНП"
     },
     "co_queue": {
-        "en": "timeout"
+        "en": "timeout",
+        "uk": "тривалість"
     },
     "cod_queue": {
-        "en": "How long to stay in queue for (minutes)"
+        "en": "How long to stay in queue for (minutes)",
+        "uk": "Наскільки довго залишатися в черзі (у хвилинах)"
     },
     "c_leave": {
-        "en": "leave"
+        "en": "leave",
+        "uk": "вийти"
     },
     "d_leave": {
-        "en": "Leave the queue"
+        "en": "Leave the queue",
+        "uk": "Вийти з черги"
     },
     "R_PLAYER_ALREADY_IN_LOBBY": {
-        "en": "You are already in a lobby."
+        "en": "You are already in a lobby.",
+        "uk": "Ви вже знаходитеся в лоббі."
     },
     "E_POWERED_BY": {
-        "en": "Powered By RPS Bot"
+        "en": "Powered By RPS Bot",
+        "uk": "Працює на RPS Bot"
     },
     "E_ZERO_PLAYERS": {
-        "en": "0 players are in the queue"
+        "en": "0 players are in the queue",
+        "uk": "У черзі 0 гравців"
     },
     "E_ONE_PLAYER": {
-        "en": "1 player is in the queue"
+        "en": "1 player is in the queue",
+        "uk": "У черзі 1 гравець"
     },
     "E_TWO_PLAYERS": {
-        "en": "2 players are in the queue"
+        "en": "2 players are in the queue",
+        "uk": "У черзі 2 гравці"
     },
     "E_MAKE_SELECTION": {
-        "en": "Make your selection. You have 30 seconds! First to 4 wins."
+        "en": "Make your selection. You have 30 seconds! First to 4 wins.",
+        "uk": "Зробіть Ваш вибір. У вас є 30 секунд! Перемагає той, хто виграє 4 рази."
     },
     "E_WANT_TO_JOIN": {
-        "en": "Want to join?"
+        "en": "Want to join?",
+        "uk": "Хочете приєднатися?"
     },
     "E_TYPE_TO_JOIN": {
-        "en": "Type `/{}` or `!{}` to join this lobby!"
+        "en": "Type `/{}` or `!{}` to join this lobby!",
+        "uk": "Напишіть `/{}` або `!{}` щоби приєднатися до цього лоббі!"
     },
     "E_WAITING": {
-        "en": "Waiting for opponent..."
+        "en": "Waiting for opponent...",
+        "uk": "Очікування на суперника..."
     }
 }
