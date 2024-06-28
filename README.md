@@ -36,7 +36,7 @@ Create a `config.json` file, and fill in the fields according to [the example fi
 
 #### Translations
 
-:ukraine: - @Henonicks
+:ukraine: - [Henonicks](https://github.com/Henonicks)
 
 :croatia: - tigar8118 on Discord
 
