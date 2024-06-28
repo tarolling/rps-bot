@@ -103,9 +103,6 @@ void on_buttonclick(const dpp::button_click_t &event) {
     unsigned int player_lobby_id =
         game::find_player_lobby_id(event.command.get_issuing_user().id);
     if (player_lobby_id == 0) {
-      event.from->creator->log(
-          dpp::ll_error,
-          fmt::format("Unable to find lobby ID for {}", event.raw_event));
       return;
     }
 
