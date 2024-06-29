@@ -16,7 +16,7 @@
     "co_queue": {
         "en": "timeout",
         "hr": "čekanje",
-        "pl": "koniec-czasu",
+        "pl": "czas",
         "uk": "тривалість",
         "ja": "タイムアウト"
     },
