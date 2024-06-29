@@ -49,12 +49,13 @@ int main(int argc, char const *argv[]) {
 
   bot.set_websocket_protocol(dpp::ws_etf);
 
-  // security::init(bot);
-
   bot.on_log(&logger::log);
   bot.on_slashcommand(&listeners::on_slashcommand);
   bot.on_button_click(&listeners::on_buttonclick);
   bot.on_ready(&listeners::on_ready);
+
+  /* Initialize database connection */
+  // db::init(bot);
 
   /* Initialize game state */
   game::init(bot);
