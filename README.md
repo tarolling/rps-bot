@@ -41,3 +41,5 @@ Create a `config.json` file, and fill in the fields according to [the example fi
 :croatia: - tigar8118 on Discord
 
 :jp: - kingofpink on Discord
+
+:poland: - guma04 on Discord
