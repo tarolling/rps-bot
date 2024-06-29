@@ -23,6 +23,7 @@
 #include <rps/domain/command.h>
 #include <rps/domain/embeds.h>
 #include <rps/domain/game.h>
+#include <rps/domain/game_manager.h>
 #include <rps/domain/lang.h>
 #include <rps/domain/listeners.h>
 
@@ -107,7 +108,7 @@ void on_buttonclick(const dpp::button_click_t &event) {
     }
 
     /* Spawn worker so sync methods don't block main event loop */
-    std::thread worker(game::handle_choice, std::ref(event));
+    std::thread worker(game_manager::handle_choice, std::ref(event));
     worker.detach();
   }
 }

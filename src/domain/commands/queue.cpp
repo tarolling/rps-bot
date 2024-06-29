@@ -25,6 +25,7 @@
 #include <rps/domain/commands/queue.h>
 #include <rps/domain/embeds.h>
 #include <rps/domain/game.h>
+#include <rps/domain/game_manager.h>
 #include <variant>
 
 using namespace i18n;
@@ -87,7 +88,7 @@ void queue_command::route(const dpp::slashcommand_t &event) {
 
   if (player_count == 2) {
     bot->log(dpp::ll_debug, fmt::format("Lobby {} started!", open_lobby_id));
-    std::thread worker(game::send_game_messages, open_lobby_id);
+    std::thread worker(game_manager::send_game_messages, open_lobby_id);
     worker.detach();
   }
 }

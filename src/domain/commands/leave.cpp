@@ -20,6 +20,7 @@
 #include <rps/domain/commands/leave.h>
 #include <rps/domain/embeds.h>
 #include <rps/domain/game.h>
+#include <rps/domain/game_manager.h>
 
 using namespace i18n;
 
@@ -46,8 +47,7 @@ void leave_command::route(const dpp::slashcommand_t &event) {
   }
 
   /* Delete game */
-  game::clear_queue_timer(event.command.usr.id);
-  game::remove_lobby_from_queue(player_lobby_id, false);
+  game_manager::handle_leave(event, player_lobby_id);
 
   /* Send confirmation embed */
   event.reply(embeds::leave(event, event.command.usr));
