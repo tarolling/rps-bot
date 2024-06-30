@@ -64,18 +64,17 @@ dpp::message leave(const dpp::interaction_create_t &interaction,
           .set_color(EMBED_COLOR));
 }
 
-dpp::message game(const dpp::interaction_create_t &interaction,
-                  const unsigned int lobby_id, const unsigned int game_num,
-                  const std::string &player_one_name,
-                  const unsigned int player_one_score,
-                  const std::string &player_two_name,
-                  const unsigned int player_two_score) {
+dpp::message
+game(const dpp::interaction_create_t &interaction, const unsigned int lobby_id,
+     const unsigned int game_num, const std::string &player_one_name,
+     const unsigned int player_one_score, const std::string &player_two_name,
+     const unsigned int player_two_score, const unsigned int first_to) {
   return dpp::message()
       .add_embed(
           dpp::embed()
               .set_title(fmt::format("Lobby #{} - Game {}", lobby_id, game_num))
-              /* TODO: Add variable for first to 4 wins */
-              .set_description(tr("E_MAKE_SELECTION", interaction))
+              .set_description(fmt::format(
+                  fmt::runtime(tr("E_MAKE_SELECTION", interaction)), first_to))
               .add_field(fmt::format("{}", player_one_score), player_one_name,
                          true)
               .add_field(fmt::format("{}", player_two_score), player_two_name,
@@ -156,6 +155,79 @@ dpp::message match_result(const dpp::interaction_create_t &interaction,
           .set_thumbnail(double_afk ? "" : winner.get_avatar_url(AVATAR_SIZE))
           .set_footer(footer(interaction))
           .set_color(EMBED_COLOR));
+}
+
+dpp::message ban(const dpp::interaction_create_t &interaction,
+                 const unsigned int lobby_id, const unsigned int exclude) {
+  dpp::message msg = dpp::message().add_embed(
+      dpp::embed()
+          .set_title(fmt::format("Lobby #{} - Ban Phase", lobby_id))
+          .set_description(tr("E_BAN_SELECTION", interaction))
+          .set_footer(footer(interaction))
+          .set_color(EMBED_COLOR));
+
+  if (exclude == 3) {
+    return msg.add_component(
+        dpp::component()
+            .add_component(dpp::component()
+                               .set_type(dpp::component_type::cot_button)
+                               .set_label("First to 4")
+                               .set_id("ban_4")
+                               .set_style(dpp::component_style::cos_primary))
+            .add_component(dpp::component()
+                               .set_type(dpp::component_type::cot_button)
+                               .set_label("First to 5")
+                               .set_id("ban_5")
+                               .set_style(dpp::component_style::cos_primary)));
+  }
+
+  if (exclude == 4) {
+    return msg.add_component(
+        dpp::component()
+            .add_component(dpp::component()
+                               .set_type(dpp::component_type::cot_button)
+                               .set_label("First to 3")
+                               .set_id("ban_3")
+                               .set_style(dpp::component_style::cos_primary))
+            .add_component(dpp::component()
+                               .set_type(dpp::component_type::cot_button)
+                               .set_label("First to 5")
+                               .set_id("ban_5")
+                               .set_style(dpp::component_style::cos_primary)));
+  }
+
+  if (exclude == 5) {
+    return msg.add_component(
+        dpp::component()
+            .add_component(dpp::component()
+                               .set_type(dpp::component_type::cot_button)
+                               .set_label("First to 3")
+                               .set_id("ban_3")
+                               .set_style(dpp::component_style::cos_primary))
+            .add_component(dpp::component()
+                               .set_type(dpp::component_type::cot_button)
+                               .set_label("First to 4")
+                               .set_id("ban_4")
+                               .set_style(dpp::component_style::cos_primary)));
+  }
+
+  return msg.add_component(
+      dpp::component()
+          .add_component(dpp::component()
+                             .set_type(dpp::component_type::cot_button)
+                             .set_label("First to 3")
+                             .set_id("ban_3")
+                             .set_style(dpp::component_style::cos_primary))
+          .add_component(dpp::component()
+                             .set_type(dpp::component_type::cot_button)
+                             .set_label("First to 4")
+                             .set_id("ban_4")
+                             .set_style(dpp::component_style::cos_primary))
+          .add_component(dpp::component()
+                             .set_type(dpp::component_type::cot_button)
+                             .set_label("First to 5")
+                             .set_id("ban_5")
+                             .set_style(dpp::component_style::cos_primary)));
 }
 
 }; // namespace embeds

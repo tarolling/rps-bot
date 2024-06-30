@@ -23,7 +23,7 @@
 #include <dpp/dpp.h>
 #include <rps/domain/commandline.h>
 #include <rps/domain/config.h>
-#include <rps/domain/game.h>
+#include <rps/domain/game_manager.h>
 #include <rps/domain/lang.h>
 #include <rps/domain/listeners.h>
 #include <rps/domain/logger.h>
@@ -58,7 +58,7 @@ int main(int argc, char const *argv[]) {
   // db::init(bot);
 
   /* Initialize game state */
-  game::init(bot);
+  game_manager::init(bot);
 
   /* Start bot */
   bot.start(dpp::st_wait);
