@@ -96,9 +96,60 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
 }
 
 void on_buttonclick(const dpp::button_click_t &event) {
+  /* Create a copy of the original message's components and disable the button
+   */
+  std::vector<dpp::component> components = event.command.msg.components;
+  for (auto &row : components) {
+    for (auto &button : row.components) {
+      button.disabled = true;
+    }
+  }
+
+  /* Edit the original message to update the components */
+  dpp::message m = event.command.msg;
+  m.components = components;
+
+  event.edit_response(m);
   event.reply();
 
-  /* Instance of game */
+  /* Instance of game bans */
+  if (event.custom_id.starts_with("ban")) {
+    unsigned int player_lobby_id =
+        game::find_player_lobby_id(event.command.get_issuing_user().id);
+    if (player_lobby_id == 0) {
+      return;
+    }
+
+    if (event.custom_id.ends_with('3')) {
+      game::set_player_ban(player_lobby_id, event.command.get_issuing_user().id,
+                           3);
+      /* Spawn worker so sync methods don't block main event loop */
+      std::thread worker(game_manager::send_ban_message, player_lobby_id);
+      worker.detach();
+      return;
+    }
+
+    if (event.custom_id.ends_with('4')) {
+      game::set_player_ban(player_lobby_id, event.command.get_issuing_user().id,
+                           4);
+      /* Spawn worker so sync methods don't block main event loop */
+      std::thread worker(game_manager::send_ban_message, player_lobby_id);
+      worker.detach();
+      return;
+    }
+
+    if (event.custom_id.ends_with('5')) {
+      game::set_player_ban(player_lobby_id, event.command.get_issuing_user().id,
+                           5);
+      /* Spawn worker so sync methods don't block main event loop */
+      std::thread worker(game_manager::send_ban_message, player_lobby_id);
+      worker.detach();
+      return;
+    }
+    return;
+  }
+
+  /* Instance of game choice */
   if (event.custom_id == "Rock" || event.custom_id == "Paper" ||
       event.custom_id == "Scissors") {
     unsigned int player_lobby_id =
@@ -110,6 +161,7 @@ void on_buttonclick(const dpp::button_click_t &event) {
     /* Spawn worker so sync methods don't block main event loop */
     std::thread worker(game_manager::handle_choice, std::ref(event));
     worker.detach();
+    return;
   }
 }
 } // namespace listeners

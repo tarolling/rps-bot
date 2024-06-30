@@ -31,6 +31,7 @@ struct player_info {
   dpp::user player;
   dpp::slashcommand_t init_interaction;
   dpp::timer queue_timer{};
+  unsigned int ban{0};
   std::string choice;
   unsigned int score{0};
 
@@ -41,6 +42,7 @@ struct player_info {
 struct rps_lobby {
   unsigned int id{0};
   unsigned int game_number{1};
+  unsigned int first_to{4};
   dpp::timer game_timer{};
   std::vector<std::shared_ptr<player_info>> players;
 };
@@ -270,4 +272,39 @@ void start_game_timer(const unsigned int lobby_id, dpp::timer timer);
  * @param lobby_id
  */
 void clear_game_timer(dpp::cluster *creator, const unsigned int lobby_id);
+
+/**
+ * @brief Set the player ban choice
+ *
+ * @param lobby_id
+ * @param player_id
+ */
+void set_player_ban(const unsigned int lobby_id, const dpp::snowflake player_id,
+                    const unsigned int ban);
+
+/**
+ * @brief Get the player ban choice
+ *
+ * @param lobby_id
+ * @param index
+ * @return std::string
+ */
+unsigned int get_player_ban(const unsigned int lobby_id,
+                            const unsigned int index);
+
+/**
+ * @brief Set the first to games
+ *
+ * @param lobby_id
+ * @param first_to
+ */
+void set_first_to(const unsigned int lobby_id, const unsigned int first_to);
+
+/**
+ * @brief Get the first to games
+ *
+ * @param lobby_id
+ * @return unsigned int
+ */
+unsigned int get_first_to(const unsigned int lobby_id);
 } // namespace game

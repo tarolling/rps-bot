@@ -16,6 +16,8 @@
  *
  ************************************************************************************/
 
+#include <chrono>
+#include <dpp/misc-enum.h>
 #include <rps/domain/embeds.h>
 #include <rps/domain/game.h>
 #include <rps/domain/game_manager.h>
@@ -30,11 +32,112 @@ dpp::cluster *creator{nullptr};
 
 void init(dpp::cluster &bot) {
   creator = &bot;
-  creator->log(dpp::ll_info, "Game state initialized");
+  creator->log(dpp::ll_info, "Game manager initialized");
+}
+
+void send_ban_message(const unsigned int lobby_id) {
+  clear_game_timer(creator, lobby_id);
+
+  unsigned int player_one_ban = get_player_ban(lobby_id, 0);
+  unsigned int player_two_ban = get_player_ban(lobby_id, 1);
+
+  if (player_one_ban == 0 && player_two_ban == 0) {
+    /* Beginning of ban phase */
+    /* Choose higher elo player to send msg (for now, random) */
+    long player_index =
+        std::chrono::system_clock::now().time_since_epoch().count() % 2;
+    creator->direct_message_create(
+        get_player_id(lobby_id, player_index),
+        embeds::ban(get_player_interaction(lobby_id, player_index), lobby_id),
+        [=](const dpp::confirmation_callback_t &callback) {
+          if (callback.is_error()) {
+            creator->log(
+                dpp::ll_error,
+                fmt::format("Error: {}", callback.get_error().human_readable));
+            return;
+          }
+          start_game_timer(lobby_id, creator->start_timer(
+                                         [=](unsigned long t) {
+                                           handle_timeout(lobby_id);
+                                           creator->stop_timer(t);
+                                         },
+                                         GAME_TIMEOUT));
+        });
+    creator->direct_message_create(
+        get_player_id(lobby_id, 1 - player_index),
+        dpp::message("Waiting for other player to ban..."));
+    return;
+  }
+
+  if (player_one_ban != 0 && player_two_ban != 0) {
+    unsigned int sum =
+        get_player_ban(lobby_id, 0) + get_player_ban(lobby_id, 1);
+    /* As unreadable as possible! */
+    unsigned int first_to = (sum == 7) ? 5 : ((sum == 8) ? 4 : 3);
+    set_first_to(lobby_id, first_to);
+
+    rps_lobby found_lobby = get_lobby(lobby_id);
+    if (found_lobby.id == 0) {
+      return;
+    }
+
+    for (const auto &player_info : found_lobby.players) {
+      creator->direct_message_create_sync(
+          player_info->player.id,
+          dpp::message(fmt::format("The game will now begin! First to {} wins.",
+                                   get_first_to(lobby_id))));
+    }
+    send_game_messages(lobby_id);
+    return;
+  }
+
+  if (player_one_ban != 0) {
+    creator->direct_message_create(
+        get_player_id(lobby_id, 1),
+        embeds::ban(get_player_interaction(lobby_id, 1), lobby_id,
+                    player_one_ban),
+        [=](const dpp::confirmation_callback_t &callback) {
+          if (callback.is_error()) {
+            creator->log(
+                dpp::ll_error,
+                fmt::format("Error: {}", callback.get_error().human_readable));
+            return;
+          }
+          start_game_timer(lobby_id, creator->start_timer(
+                                         [=](unsigned long t) {
+                                           handle_timeout(lobby_id);
+                                           creator->stop_timer(t);
+                                         },
+                                         GAME_TIMEOUT));
+        });
+    return;
+  }
+
+  if (player_two_ban != 0) {
+    creator->direct_message_create(
+        get_player_id(lobby_id, 0),
+        embeds::ban(get_player_interaction(lobby_id, 0), lobby_id,
+                    player_two_ban),
+        [=](const dpp::confirmation_callback_t &callback) {
+          if (callback.is_error()) {
+            creator->log(
+                dpp::ll_error,
+                fmt::format("Error: {}", callback.get_error().human_readable));
+            return;
+          }
+          start_game_timer(lobby_id, creator->start_timer(
+                                         [=](unsigned long t) {
+                                           handle_timeout(lobby_id);
+                                           creator->stop_timer(t);
+                                         },
+                                         GAME_TIMEOUT));
+        });
+    return;
+  }
 }
 
 void send_game_messages(const unsigned int lobby_id) {
-  game::rps_lobby found_lobby = game::get_lobby(lobby_id);
+  rps_lobby found_lobby = get_lobby(lobby_id);
   if (found_lobby.id == 0) {
     return;
   }
@@ -50,6 +153,7 @@ void send_game_messages(const unsigned int lobby_id) {
   unsigned int player_one_score = get_player_score(lobby_id, 0);
   std::string player_two_name = get_player_name(lobby_id, 1);
   unsigned int player_two_score = get_player_score(lobby_id, 1);
+  unsigned int first_to = get_first_to(lobby_id);
 
   start_game_timer(lobby_id, creator->start_timer(
                                  [=](unsigned long t) {
@@ -63,7 +167,7 @@ void send_game_messages(const unsigned int lobby_id) {
         player_info->player.id,
         embeds::game(player_info->init_interaction, lobby_id, game_num,
                      player_one_name, player_one_score, player_two_name,
-                     player_two_score));
+                     player_two_score, first_to));
   }
 }
 
@@ -306,5 +410,7 @@ void handle_leave(const dpp::slashcommand_t &event,
   clear_queue_timer(event.from->creator, event.command.usr.id);
   remove_lobby_from_queue(lobby_id, false);
 }
+
+void handle_start(const unsigned int lobby_id) {}
 
 } // namespace game_manager

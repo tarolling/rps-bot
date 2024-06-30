@@ -47,7 +47,7 @@ namespace embeds {
 game(const dpp::interaction_create_t &interaction, const unsigned int lobby_id,
      const unsigned int game_num, const std::string &player_one_name,
      const unsigned int player_one_score, const std::string &player_two_name,
-     const unsigned int player_two_score);
+     const unsigned int player_two_score, const unsigned int first_to);
 
 [[nodiscard]] dpp::message waiting(const dpp::interaction_create_t &interaction,
                                    const unsigned int game_num,
@@ -69,5 +69,9 @@ game_result(const dpp::interaction_create_t &interaction,
     const unsigned int player_one_score, const std::string &player_two_name,
     const unsigned int player_two_score, const dpp::user &winner,
     bool double_afk);
+
+[[nodiscard]] dpp::message ban(const dpp::interaction_create_t &interaction,
+                               const unsigned int lobby_id,
+                               const unsigned int exclude = 0);
 
 }; // namespace embeds

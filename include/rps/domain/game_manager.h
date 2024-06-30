@@ -30,6 +30,7 @@ namespace game_manager {
  */
 void init(dpp::cluster &bot);
 
+void send_ban_message(const unsigned int lobby_id);
 void send_game_messages(const unsigned int lobby_id);
 void send_result_messages(const unsigned int lobby_id,
                           const unsigned int winner, const unsigned int loser,

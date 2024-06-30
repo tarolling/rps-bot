@@ -446,8 +446,8 @@ bool is_game_complete(const unsigned int lobby_id) {
   std::lock_guard<std::shared_mutex> game_lock(game_mutex);
   for (const auto &lobby : lobby_queue) {
     if (lobby.id == lobby_id) {
-      return lobby.players.front()->score == 4 ||
-             lobby.players.back()->score == 4;
+      return lobby.players.front()->score == lobby.first_to ||
+             lobby.players.back()->score == lobby.first_to;
     }
   }
   return false;
@@ -538,4 +538,74 @@ void clear_game_timer(dpp::cluster *creator, const unsigned int lobby_id) {
   }
 }
 
+/**
+ * @brief PROTECTED
+ *
+ * @param lobby_id
+ * @param player_id
+ */
+void set_player_ban(const unsigned int lobby_id, const dpp::snowflake player_id,
+                    const unsigned int ban) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      for (auto &player_info : lobby.players) {
+        if (player_info->player.id == player_id) {
+          player_info->ban = ban;
+          return;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * @brief PROTECTED
+ *
+ * @param lobby_id
+ * @param index
+ * @return std::string
+ */
+unsigned int get_player_ban(const unsigned int lobby_id,
+                            const unsigned int index) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (const auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      return lobby.players[index]->ban;
+    }
+  }
+  return 0;
+}
+
+/**
+ * @brief PROTECTED
+ *
+ * @param lobby_id
+ * @param first_to
+ */
+void set_first_to(const unsigned int lobby_id, const unsigned int first_to) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      lobby.first_to = first_to;
+      return;
+    }
+  }
+}
+
+/**
+ * @brief PROTECTED
+ *
+ * @param lobby_id
+ * @return unsigned int
+ */
+unsigned int get_first_to(const unsigned int lobby_id) {
+  std::lock_guard<std::shared_mutex> game_lock(game_mutex);
+  for (const auto &lobby : lobby_queue) {
+    if (lobby.id == lobby_id) {
+      return lobby.first_to;
+    }
+  }
+  return 4;
+}
 } // namespace game

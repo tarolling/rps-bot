@@ -77,11 +77,11 @@
         "ja": "２人がキューに入っている"
     },
     "E_MAKE_SELECTION": {
-        "en": "Make your selection. You have 30 seconds! First to 4 wins.",
-        "hr": "Izaberite potez. Imate 30 sekundi! Prvi do 4 je pobednik.",
-        "pl": "Dokonaj wyboru. Masz 30 sekund! Pierwszy z 4 punktami wygrywa.",
-        "uk": "Зробіть Ваш вибір. У вас є 30 секунд! Перемагає той, хто виграє 4 рази.",
-        "ja": "選択してください。30秒が残っています。先に4点取った方が勝ちます。"
+        "en": "Make your selection. You have 30 seconds! First to {} wins.",
+        "hr": "Izaberite potez. Imate 30 sekundi! Prvi do {} je pobednik.",
+        "pl": "Dokonaj wyboru. Masz 30 sekund! Pierwszy z {} punktami wygrywa.",
+        "uk": "Зробіть Ваш вибір. У вас є 30 секунд! Перемагає той, хто виграє {} рази.",
+        "ja": "選択してください。30秒が残っています。先に{}点取った方が勝ちます。"
     },
     "E_WANT_TO_JOIN": {
         "en": "Want to join?",
@@ -103,5 +103,8 @@
         "pl": "Oczekiwanie na przeciwnika...",
         "uk": "Очікування на суперника...",
         "ja": "敵を待っています..."
+    },
+    "E_BAN_SELECTION": {
+        "en": "Please select the format that you want to ban."
     }
 }
