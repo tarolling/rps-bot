@@ -96,6 +96,8 @@ void on_slashcommand(const dpp::slashcommand_t &event) {
 }
 
 void on_buttonclick(const dpp::button_click_t &event) {
+  event.reply();
+
   /* Create a copy of the original message's components and disable the button
    */
   std::vector<dpp::component> components = event.command.msg.components;
@@ -110,7 +112,6 @@ void on_buttonclick(const dpp::button_click_t &event) {
   m.components = components;
 
   event.edit_response(m);
-  event.reply();
 
   /* Instance of game bans */
   if (event.custom_id.starts_with("ban")) {
