@@ -3,7 +3,13 @@
     "dev_token": "<dev bot token>",
     "log": "<log directory>",
     "shards": 2,
-    "dev": false,
+    "database": {
+        "host": "<host name>",
+        "port": 8000,
+        "db_name": "<db name>",
+        "username": "<username>",
+        "password": "<password>"
+    },
     "icon": "<url to bot icon>",
     "default_queue_time": 5
 }
