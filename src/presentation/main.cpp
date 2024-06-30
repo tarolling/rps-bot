@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <dpp/dpp.h>
+#include <rps/data_source/database.h>
 #include <rps/domain/commandline.h>
 #include <rps/domain/config.h>
 #include <rps/domain/game_manager.h>
@@ -55,7 +56,7 @@ int main(int argc, char const *argv[]) {
   bot.on_ready(&listeners::on_ready);
 
   /* Initialize database connection */
-  // db::init(bot);
+  db::init(bot);
 
   /* Initialize game state */
   game_manager::init(bot);

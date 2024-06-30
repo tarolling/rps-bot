@@ -257,7 +257,7 @@ void send_result_messages(const unsigned int lobby_id,
   /* Just send one if they are the same */
   if (player_one_interaction.command.channel_id ==
       player_two_interaction.command.channel_id) {
-    creator->message_create(
+    creator->message_create_sync(
         result_msg.set_guild_id(player_one_interaction.command.guild_id)
             .set_channel_id(player_one_interaction.command.channel_id));
     return;
@@ -265,14 +265,14 @@ void send_result_messages(const unsigned int lobby_id,
 
   if (!player_one_interaction.command.guild_id.empty() &&
       player_one_interaction.command.guild_id != 0) {
-    creator->message_create(
+    creator->message_create_sync(
         result_msg.set_guild_id(player_one_interaction.command.guild_id)
             .set_channel_id(player_one_interaction.command.channel_id));
   }
 
   if (!player_two_interaction.command.guild_id.empty() &&
       player_two_interaction.command.guild_id != 0) {
-    creator->message_create(
+    creator->message_create_sync(
         result_msg.set_guild_id(player_two_interaction.command.guild_id)
             .set_channel_id(player_two_interaction.command.message_id));
   }

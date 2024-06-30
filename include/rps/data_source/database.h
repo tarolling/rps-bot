@@ -27,4 +27,32 @@ namespace db {
  * @param bot creating D++ cluster
  */
 void init(dpp::cluster &bot);
+
+/**
+ * @brief Connect to database and set options
+ *
+ * @param host Database hostname
+ * @param user Database username
+ * @param pass Database password
+ * @param db Database schema name
+ * @param port Database port number
+ * @param socket unix socket path
+ * @return True if the database connection succeeded
+ *
+ * @note Unix socket and port number are mutually exclusive. If you set socket
+ * to a non-empty string, you should set port to 0 and host to `localhost`. This
+ * is a special value in the mysql client and causes a unix socket connection to
+ * occur. If you do not want to use unix sockets, keep the value as an empty
+ * string.
+ */
+bool connect(const std::string &host, const std::string &user,
+             const std::string &pass, const std::string &db, int port = 7474,
+             const std::string &socket = "");
+
+/**
+ * @brief Disconnect from database and free query cache
+ *
+ * @return true on successful disconnection
+ */
+bool close();
 } // namespace db

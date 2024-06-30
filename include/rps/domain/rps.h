@@ -48,8 +48,6 @@ inline std::string ltrim(std::string s) {
  */
 inline std::string trim(std::string s) { return ltrim(rtrim(s)); }
 
-std::string sha256(const std::string &buffer);
-
 inline long atol(const std::string &str) {
   if (str.empty())
     return 0;
