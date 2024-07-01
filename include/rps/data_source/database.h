@@ -55,4 +55,16 @@ bool connect(const std::string &host, const std::string &user,
  * @return true on successful disconnection
  */
 bool close();
+
+/**
+ * @brief Writes response data into buffer
+ *
+ * @param contents
+ * @param size
+ * @param nmemb
+ * @param s
+ * @return size_t
+ */
+size_t write_callback(void *contents, size_t size, size_t nmemb,
+                      std::string *s);
 } // namespace db

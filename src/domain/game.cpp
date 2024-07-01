@@ -34,7 +34,7 @@ namespace game {
 /**
  * @brief Tracks global lobby ID
  */
-unsigned int global_lobby_id{0};
+static unsigned int global_lobby_id{0};
 
 /**
  * @brief Important that only one client reads/writes to game state!
@@ -44,7 +44,7 @@ std::shared_mutex game_mutex;
 /**
  * @brief Collection of pending lobbies
  */
-std::list<rps_lobby> lobby_queue;
+static std::list<rps_lobby> lobby_queue;
 
 /**
  * @brief PROTECTED
