@@ -68,7 +68,7 @@ void init(dpp::cluster &bot) {
     exit(2);
   }
   creator->log(dpp::ll_info,
-               fmt::format("Connected to database: {}", dbconf["database"]));
+               fmt::format("Database {} initialized", dbconf["database"]));
 }
 
 /**
@@ -96,7 +96,7 @@ bool unsafe_connect(const std::string &host, const std::string &user,
     std::unique_ptr<sql::Statement> stmt(connection->createStatement());
 
     std::unique_ptr<sql::ResultSet> res(
-        stmt->executeQuery("SELECT 'Connected to DB.' AS _message"));
+        stmt->executeQuery("SELECT 'Connected to database RPS.' AS _message"));
 
     while (res->next()) {
       creator->log(dpp::ll_debug, res->getString("_message"));
@@ -119,14 +119,49 @@ bool connect(const std::string &host, const std::string &user,
 
 bool close() {
   std::lock_guard<std::mutex> db_lock(db_mutex);
-  curl_global_cleanup();
   return true;
 }
 
-size_t write_callback(void *contents, size_t size, size_t nmemb,
-                      std::string *s) {
-  size_t total_size = size * nmemb;
-  s->append(static_cast<char *>(contents), total_size);
-  return total_size;
+bool test_register_query(const dpp::snowflake user_id) {
+  int elo = config::get("default_elo");
+  const json &dbconf = config::get("database");
+  const std::string &host = dbconf["host"];
+  const std::string &user = dbconf["username"];
+  const std::string &pass = dbconf["password"];
+  const std::string &db = dbconf["database"];
+  int port = dbconf["port"];
+
+  std::lock_guard<std::mutex> db_lock(db_mutex);
+
+  try {
+    sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
+
+    std::unique_ptr<sql::Connection> connection(
+        driver->connect(fmt::format("tcp://{}:{}", host, port), user, pass));
+
+    connection->setSchema(db);
+
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
+
+    std::unique_ptr<sql::ResultSet> res(stmt->executeQuery(fmt::format(
+        "INSERT INTO rps.players (discord_id, elo) VALUES ({}, {});", user_id,
+        elo)));
+
+    // while (res->next()) {
+    // creator->log(dpp::ll_debug, res.);
+    // }
+  } catch (sql::SQLException &e) {
+    if (e.getSQLState() == "00000") {
+      return true;
+    }
+
+    creator->log(dpp::ll_error,
+                 fmt::format("SQL Error Code: {}", e.getErrorCode()));
+    creator->log(dpp::ll_error, fmt::format("SQLException: {}", e.what()));
+    creator->log(dpp::ll_error, fmt::format("SQLState: {}", e.getSQLState()));
+    return false;
+  }
+
+  return true;
 }
 } // namespace db

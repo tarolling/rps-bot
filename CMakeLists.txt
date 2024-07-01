@@ -31,7 +31,6 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 find_package(DPP REQUIRED CONFIG)
 find_package(OpenSSL REQUIRED)
-find_package(CURL REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-g -O2 -rdynamic -Wall -Wno-psabi -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough -Wmissing-field-initializers -Wsign-compare -Wtype-limits -Wuninitialized -Wshift-negative-value")
 target_compile_definitions(${BOT_NAME} PUBLIC _GNU_SOURCE)

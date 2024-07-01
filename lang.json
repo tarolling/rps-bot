@@ -41,6 +41,12 @@
         "uk": "Вийти з черги",
         "ja": "キューを出る"
     },
+    "c_register": {
+        "en": "register"
+    },
+    "d_register": {
+        "en": "Register to start playing RPS"
+    },
     "R_PLAYER_ALREADY_IN_LOBBY": {
         "en": "You are already in a lobby.",
         "hr": "Već ste u redu i čekate.",

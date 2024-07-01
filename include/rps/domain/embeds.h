@@ -74,4 +74,7 @@ game_result(const dpp::interaction_create_t &interaction,
                                const unsigned int lobby_id,
                                const unsigned int exclude = 0);
 
+[[nodiscard]] dpp::message _register(
+    const dpp::interaction_create_t &interaction);
+
 }; // namespace embeds

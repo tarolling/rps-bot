@@ -230,4 +230,8 @@ dpp::message ban(const dpp::interaction_create_t &interaction,
                              .set_style(dpp::component_style::cos_primary)));
 }
 
+dpp::message _register(const dpp::interaction_create_t &interaction) {
+  return dpp::message("You have successfully registered!");
+}
+
 }; // namespace embeds

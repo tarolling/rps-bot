@@ -29,6 +29,7 @@
 
 #include <rps/domain/commands/leave.h>
 #include <rps/domain/commands/queue.h>
+#include <rps/domain/commands/register.h>
 #include <string>
 
 namespace listeners {
@@ -37,6 +38,7 @@ std::vector<dpp::slashcommand> get_commands(dpp::cluster &bot) {
   return {
       register_command<queue_command>(bot),
       register_command<leave_command>(bot),
+      register_command<register_command_t>(bot),
   };
 }
 

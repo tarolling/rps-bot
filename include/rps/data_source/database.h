@@ -19,6 +19,7 @@
 #pragma once
 
 #include <dpp/cluster.h>
+#include <dpp/snowflake.h>
 
 namespace db {
 /**
@@ -57,14 +58,11 @@ bool connect(const std::string &host, const std::string &user,
 bool close();
 
 /**
- * @brief Writes response data into buffer
+ * @brief TEST QUERY FOR REGISTER< PLEASE CHANGE
  *
- * @param contents
- * @param size
- * @param nmemb
- * @param s
- * @return size_t
+ * @param user_id
+ * @return true
+ * @return false
  */
-size_t write_callback(void *contents, size_t size, size_t nmemb,
-                      std::string *s);
+bool test_register_query(const dpp::snowflake user_id);
 } // namespace db
