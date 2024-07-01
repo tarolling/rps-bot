@@ -108,20 +108,6 @@ bool unsafe_connect(const std::string &host, const std::string &user,
   }
 
   return true;
-
-  // if (mysql_init(&connection) != nullptr) {
-  //   mysql_options(&connection, MYSQL_INIT_COMMAND, CONNECT_STRING);
-  //   int opts = CLIENT_MULTI_RESULTS | CLIENT_MULTI_STATEMENTS |
-  //              CLIENT_REMEMBER_OPTIONS | CLIENT_IGNORE_SIGPIPE;
-  //   bool result = mysql_real_connect(
-  //       &connection, host.c_str(), user.c_str(), pass.c_str(), db.c_str(),
-  //       port, socket.empty() ? nullptr : socket.c_str(), opts);
-  //   signal(SIGPIPE, SIG_IGN);
-  //   return result;
-  // } else {
-  //   last_error = "mysql_init() failed";
-  //   return false;
-  // }
 }
 
 bool connect(const std::string &host, const std::string &user,
@@ -130,91 +116,6 @@ bool connect(const std::string &host, const std::string &user,
   std::lock_guard<std::mutex> db_lock(db_mutex);
   return unsafe_connect(host, user, pass, db, port, socket);
 }
-
-// bool connect(const std::string &host, const std::string &user,
-//              const std::string &pass, const std::string &db, int port,
-//              const std::string &socket) {
-//   std::lock_guard<std::mutex> db_lock(db_mutex);
-
-//   CURL *curl = nullptr;
-//   CURLcode res{};
-//   std::string read_buf;
-
-//   curl_global_init(CURL_GLOBAL_DEFAULT);
-//   curl = curl_easy_init();
-//   if (curl) {
-//     std::string url =
-//         fmt::format("postgresql://{}:{}@{}:{}/{}?sslmode=verify-full", user,
-//                     pass, host, port, db);
-//     const char *fields = R"({"statement": "RETURN 1"})";
-
-//     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-//     curl_easy_setopt(curl, CURLOPT_POST, 1L);
-//     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
-
-//     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-//     curl_easy_setopt(curl, CURLOPT_POSTREDIR, CURL_REDIR_POST_ALL);
-
-//     curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-//     curl_easy_setopt(curl, CURLOPT_USERPWD,
-//                      fmt::format("{}:{}", user, pass).c_str());
-
-//     struct curl_slist *headers = nullptr;
-//     headers = curl_slist_append(headers, "Accept: application/json");
-//     headers = curl_slist_append(headers, "Content-Type: application/json");
-//     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-//     /* Set read buffers */
-//     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-//     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buf);
-
-//     /* For debugging purposes */
-//     char error_buffer[CURL_ERROR_SIZE];
-//     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error_buffer);
-//     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-//     /* Send the authentication to any host (ik this isn't what ur supposed to
-//     do
-//      * but idc) */
-//     curl_easy_setopt(curl, CURLOPT_UNRESTRICTED_AUTH, 1L);
-//     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L);
-
-//     /* Perform the request and get the response code */
-//     res = curl_easy_perform(curl);
-
-//     /* Check for errors */
-//     if (res != CURLE_OK) {
-//       creator->log(dpp::ll_error,
-//                    fmt::format("curl_easy_perform() failed: {} - {}",
-//                                curl_easy_strerror(res), error_buffer));
-//       curl_easy_cleanup(curl);
-//       curl_slist_free_all(headers);
-//       curl_global_cleanup();
-//       return false;
-//     } else {
-//       long response_code;
-//       curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-
-//       if (response_code == 202) {
-//         creator->log(dpp::ll_debug, "POST request sent successfully!");
-//       } else {
-//         creator->log(dpp::ll_debug,
-//                      fmt::format("response code - {}", response_code));
-//         creator->log(dpp::ll_debug, fmt::format("Response data: {}",
-//         read_buf)); curl_easy_cleanup(curl); curl_slist_free_all(headers);
-//         curl_global_cleanup();
-//         return false;
-//       }
-//     }
-
-//     /* Clean up */
-//     curl_easy_cleanup(curl);
-//     curl_slist_free_all(headers);
-//   }
-
-//   curl_global_cleanup();
-//   return true;
-// }
 
 bool close() {
   std::lock_guard<std::mutex> db_lock(db_mutex);
