@@ -10,7 +10,7 @@ to feed me :D
 
 ## Invite To Your Server
 
-<https://discord.com/oauth2/authorize?client_id=638351152131604521&scope=bot+applications.commands&permissions=939641936>
+<https://discord.com/oauth2/authorize?client_id=638351152131604521&permissions=274877975552&integration_type=0&scope=bot+applications.commands>
 
 ## Development
 
